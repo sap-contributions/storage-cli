@@ -1,22 +1,9 @@
 name: Build
 on:
-    push:
-        branches: [main]
-        paths-ignore:
-            - 'README.md'
-            - 'LICENSE'
-            - 'NOTICE'
-    workflow_dispatch: # manual trigger
-        inputs:
-            version_bump:
-                description: 'Version bump type (major, minor, patch)'
-                required: false
-                default: 'patch'
-                type: choice
-                options:
-                    - major
-                    - minor
-                    - patch
+  pull_request:
+    branches:
+      - main
+      
 jobs:
     build-ali-cli:
         name: Build Only (No Release)
