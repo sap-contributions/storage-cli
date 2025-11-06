@@ -32,7 +32,6 @@ trap "cat ${lambda_log}" EXIT
 pushd "${repo_root}" > /dev/null
 
   echo -e "\n building artifact with $(go version)..."
-# Build the S3 CLI from the current repository
   CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o out/s3cli ./s3
   CGO_ENABLED=0 ginkgo build s3/integration
 
