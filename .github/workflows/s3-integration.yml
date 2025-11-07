@@ -125,7 +125,7 @@ jobs:
         run: |
           export access_key_id="${{ secrets.AWS_ACCESS_KEY_ID }}"
           export secret_access_key="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          export role_arn="${{ secrets.AWS_ROLE_ARN }}"
+          export role_arn=""
           export region_name="us-east-1"
           export stack_name="s3cli-public-bucket"
           ./.github/scripts/s3/teardown-infrastructure.sh
