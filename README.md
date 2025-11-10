@@ -1,5 +1,5 @@
 # Storage CLI
-This repository consolidates five independent blob-storage CLIs, one per provider, into a single codebase. Each provider lives in its own directory (e.g., azure/, aws/, gcs/, ali/, dav/) with its own main package and code base. The each clis expose similar high-level operations (e.g., put, get, delete) but are intentionally separate binaries, preserving each provider’s native SDK, flags, and behaviors.
+This repository consolidates five independent blob-storage CLIs, one per provider, into a single codebase. Each provider has its own dedicated directory (azurebs/, s3/, gcs/, alioss/, dav/), containing an independent main package and implementation. The tools are intentionally maintained as separate binaries, preserving each provider’s native SDK, command-line flags, and operational semantics. Each CLI exposes similar high-level operations (e.g., put, get, delete).
 
 Key points
 
@@ -13,10 +13,10 @@ Key points
 
 
 ## Providers
-- [Ali](./ali/README.md)
-- [Azure](./azure/README.md)
+- [Alioss](./alioss/README.md)
+- [Azurebs](./azurebs/README.md)
 - [Dav](./dav/README.md)
-- [GCS](./gcs/README.md)
+- [Gcs](./gcs/README.md)
 - [S3](./s3/README.md)
 
 
@@ -26,14 +26,14 @@ Use following command to build it locally
 ```shell
 go build -o <provider-folder-name>/<build-name> <provider-folder-name>/main.go  
 ```
-e.g. `go build -o ali/storage-cli-ali ali/main.go`
+e.g. `go build -o alioss/alioss-cli alioss/main.go`
 
 
 ## Notes
 These commit IDs represent the last migration checkpoint from each provider's original repository, marking the final commit that was copied during the consolidation process.
 
-- ali   -> c303a62679ff467ba5012cc1a7ecfb7b6be47ea0
-- azure -> 18667d2a0b5237c38d053238906b4500cfb82ce8
+- alioss   -> c303a62679ff467ba5012cc1a7ecfb7b6be47ea0
+- azurebs -> 18667d2a0b5237c38d053238906b4500cfb82ce8
 - dav   -> c64e57857539d0173d46e79093c2e998ec71ab63
 - gcs   -> d4ab2040f37415a559942feb7e264c6b28950f77
 - s3    -> 7ac9468ba8567eaf79828f30007c5a44066ef50f

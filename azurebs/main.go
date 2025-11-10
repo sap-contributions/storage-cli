@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/cloudfoundry/storage-cli/azure/client"
-	"github.com/cloudfoundry/storage-cli/azure/config"
+	"github.com/cloudfoundry/storage-cli/azurebs/client"
+	"github.com/cloudfoundry/storage-cli/azurebs/config"
 )
 
 var version string

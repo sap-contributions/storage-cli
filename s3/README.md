@@ -34,28 +34,28 @@ Given a JSON config file (`config.json`)...
 
 ``` bash
 # Usage
-storage-cli-s3 --help
+s3-cli --help
 
 # Command: "put"
 # Upload a blob to an S3-compatible blobstore.
-storage-cli-s3 -c config.json put <path/to/file> <remote-blob>
+s3-cli -c config.json put <path/to/file> <remote-blob>
 
 # Command: "get"
 # Fetch a blob from an S3-compatible blobstore.
 # Destination file will be overwritten if exists.
-storage-cli-s3 -c config.json get <remote-blob> <path/to/file>
+s3-cli -c config.json get <remote-blob> <path/to/file>
 
 # Command: "delete"
 # Remove a blob from an S3-compatible blobstore.
-storage-cli-s3 -c config.json delete <remote-blob>
+s3-cli -c config.json delete <remote-blob>
 
 # Command: "exists"
 # Checks if blob exists in an S3-compatible blobstore.
-storage-cli-s3 -c config.json exists <remote-blob>
+s3-cli -c config.json exists <remote-blob>
 
 # Command: "sign"
 # Create a self-signed url for an object
-storage-cli-s3 -c config.json sign <remote-blob> <get|put> <seconds-to-expiration>
+s3-cli -c config.json sign <remote-blob> <get|put> <seconds-to-expiration>
 ```
 
 ## Contributing

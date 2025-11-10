@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/cloudfoundry/storage-cli/azure/config"
+	"github.com/cloudfoundry/storage-cli/azurebs/config"
 )
 
 var _ = Describe("Config", func() {

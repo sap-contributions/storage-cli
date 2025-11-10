@@ -2,8 +2,7 @@ name : Unit Test
 
 on:
   pull_request:
-    branches:
-      - main
+  push:
 
 jobs:
     tests: 
@@ -25,17 +24,17 @@ jobs:
                 restore-keys: |
                     ${{ runner.os }}-go-
             
-            - name: ali unit tests
+            - name: alioss unit tests
               run: |
                     export CGO_ENABLED=0
                     go version
-                    go run github.com/onsi/ginkgo/v2/ginkgo --skip-package=integration ./ali/...
+                    go run github.com/onsi/ginkgo/v2/ginkgo --skip-package=integration ./alioss/...
             
-            - name: azure unit tests
+            - name: azurebs unit tests
               run: |
                     export CGO_ENABLED=0
                     go version
-                    go run github.com/onsi/ginkgo/v2/ginkgo --skip-package=integration ./azure/...
+                    go run github.com/onsi/ginkgo/v2/ginkgo --skip-package=integration ./azurebs/...
 
             - name: dav unit tests
               run: |

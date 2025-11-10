@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/cloudfoundry/storage-cli/ali/client"
-	"github.com/cloudfoundry/storage-cli/ali/config"
+	"github.com/cloudfoundry/storage-cli/alioss/client"
+	"github.com/cloudfoundry/storage-cli/alioss/config"
 )
 
 var version string

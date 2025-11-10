@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/cloudfoundry/storage-cli/ali/config"
-	"github.com/cloudfoundry/storage-cli/ali/integration"
+	"github.com/cloudfoundry/storage-cli/alioss/config"
+	"github.com/cloudfoundry/storage-cli/alioss/integration"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

@@ -11,7 +11,7 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
 
-	"github.com/cloudfoundry/storage-cli/ali/config"
+	"github.com/cloudfoundry/storage-cli/azurebs/config"
 )
 
 const alphanum = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -29,7 +29,7 @@ func GenerateRandomString(params ...int) string {
 	return string(randBytes)
 }
 
-func MakeConfigFile(cfg *config.AliStorageConfig) string {
+func MakeConfigFile(cfg *config.AZStorageConfig) string {
 	cfgBytes, err := json.Marshal(cfg)
 	gomega.Expect(err).ToNot(gomega.HaveOccurred())
 	tmpFile, err := os.CreateTemp("", "azure-storage-cli-test")

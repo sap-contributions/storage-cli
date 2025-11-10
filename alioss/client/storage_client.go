@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
-	"github.com/cloudfoundry/storage-cli/ali/config"
+	"github.com/cloudfoundry/storage-cli/alioss/config"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . StorageClient

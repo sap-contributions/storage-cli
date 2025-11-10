@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"os"
 
-	"github.com/cloudfoundry/storage-cli/azure/config"
-	"github.com/cloudfoundry/storage-cli/azure/integration"
+	"github.com/cloudfoundry/storage-cli/azurebs/config"
+	"github.com/cloudfoundry/storage-cli/azurebs/integration"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

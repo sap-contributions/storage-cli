@@ -27,10 +27,3 @@
 # IDE/editor
 .vscode/
 .idea/
-
-# build binaries in each provider folder
-/azure/storage-cli-azure
-/s3/storage-cli-s3
-/gcs/storage-cli-gcs
-/ali/storage-cli-ali
-/dav/storage-cli-dav
