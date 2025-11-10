@@ -4,8 +4,8 @@ import (
 	"errors"
 	"os"
 
-	"github.com/cloudfoundry/storage-cli/ali/client"
-	"github.com/cloudfoundry/storage-cli/ali/client/clientfakes"
+	"github.com/cloudfoundry/storage-cli/alioss/client"
+	"github.com/cloudfoundry/storage-cli/alioss/client/clientfakes"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )

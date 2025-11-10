@@ -1,11 +1,10 @@
 name: Build
 on:
   pull_request:
-    branches:
-      - main
+  push:
       
 jobs:
-    build-ali-cli:
+    build-all-clis:
         name: Build Only (No Release)
         runs-on: [ubuntu-latest]
         steps:
@@ -16,45 +15,45 @@ jobs:
           with:
             go-version-file: 'go.mod'
         
-        - name: Ali CLI Build for Linux
+        - name: Alioss CLI Build for Linux
           env:
             GOOS: linux
             GOARCH: amd64
             CGO_ENABLED: 0
           run: |
-                echo "Building Ali CLI for Linux"
-                go build -o "ali-storage-cli-linux-amd64" ./ali
-                sha1sum "ali-storage-cli-linux-amd64"
+                echo "Building Alioss CLI for Linux"
+                go build -o "alioss-cli-linux-amd64" ./alioss
+                sha1sum "alioss-cli-linux-amd64"
         
-        - name: Ali CLI Build for Windows
+        - name: Alioss CLI Build for Windows
           env:
             GOOS: windows
             GOARCH: amd64
             CGO_ENABLED: 0
           run: |
-                echo "Building Ali CLI for Windows"
-                go build -o "ali-storage-cli-windows-amd64.exe" ./ali
-                sha1sum "ali-storage-cli-windows-amd64.exe"
+                echo "Building Alioss CLI for Windows"
+                go build -o "alioss-cli-windows-amd64.exe" ./alioss
+                sha1sum "alioss-cli-windows-amd64.exe"
 
-        - name: Azure CLI Build for Linux
+        - name: Azurebs CLI Build for Linux
           env:
             GOOS: linux
             GOARCH: amd64
             CGO_ENABLED: 0
           run: |
-                echo "Building Azure CLI for Linux"
-                go build -o "azure-storage-cli-linux-amd64" ./azure
-                sha1sum "azure-storage-cli-linux-amd64"
+                echo "Building Azurebs CLI for Linux"
+                go build -o "azurebs-cli-linux-amd64" ./azurebs
+                sha1sum "azurebs-cli-linux-amd64"
         
-        - name: Azure CLI Build for Windows
+        - name: Azurebs CLI Build for Windows
           env:
             GOOS: windows
             GOARCH: amd64
             CGO_ENABLED: 0
           run: |
-                echo "Building Azure CLI for Windows"
-                go build -o "azure-storage-cli-windows-amd64.exe" ./azure
-                sha1sum "azure-storage-cli-windows-amd64.exe"
+                echo "Building Azurebs CLI for Windows"
+                go build -o "azurebs-cli-windows-amd64.exe" ./azurebs
+                sha1sum "azurebs-cli-windows-amd64.exe"
 
         - name: Dav CLI Build for Linux
           env:
@@ -63,8 +62,8 @@ jobs:
             CGO_ENABLED: 0
           run: |
                 echo "Building Dav CLI for Linux"
-                go build -o "dav-storage-cli-linux-amd64" ./dav/main
-                sha1sum "dav-storage-cli-linux-amd64"
+                go build -o "dav-cli-linux-amd64" ./dav/main
+                sha1sum "dav-cli-linux-amd64"
         
         - name: Dav CLI Build for Windows
           env:
@@ -73,29 +72,28 @@ jobs:
             CGO_ENABLED: 0
           run: |
                 echo "Building Dav CLI for Windows"
-                go build -o "dav-storage-cli-windows-amd64.exe" ./dav/main
-                sha1sum "dav-storage-cli-windows-amd64.exe"
+                go build -o "dav-cli-windows-amd64.exe" ./dav/main
+                sha1sum "dav-cli-windows-amd64.exe"
 
-        - name: Gcs CLI Build for Linux
+        - name: GCS CLI Build for Linux
           env:
             GOOS: linux
             GOARCH: amd64
             CGO_ENABLED: 0
           run: |
                 echo "Building Gcs CLI for Linux"
-                go build -o "gcs-storage-cli-linux-amd64" ./gcs
-                sha1sum "gcs-storage-cli-linux-amd64"
+                go build -o "gcs-cli-linux-amd64" ./gcs
+                sha1sum "gcs-cli-linux-amd64"
         
-        - name: Gcs CLI Build for Windows
+        - name: GCS CLI Build for Windows
           env:
             GOOS: windows
             GOARCH: amd64
             CGO_ENABLED: 0
           run: |
                 echo "Building Gcs CLI for Windows"
-                go build -o "gcs-storage-cli-windows-amd64.exe" ./gcs
-                sha1sum "gcs-storage-cli-windows-amd64.exe"
-
+                go build -o "gcs-cli-windows-amd64.exe" ./gcs
+                sha1sum "gcs-cli-windows-amd64.exe"
 
         - name: S3 CLI Build for Linux
           env:
@@ -104,8 +102,8 @@ jobs:
             CGO_ENABLED: 0
           run: |
                 echo "Building S3 CLI for Linux"
-                go build -o "s3-storage-cli-linux-amd64" ./s3
-                sha1sum "s3-storage-cli-linux-amd64"
+                go build -o "s3-cli-linux-amd64" ./s3
+                sha1sum "s3-cli-linux-amd64"
         
         - name: S3 CLI Build for Windows
           env:
@@ -114,5 +112,5 @@ jobs:
             CGO_ENABLED: 0
           run: |
                 echo "Building S3 CLI for Windows"
-                go build -o "s3-storage-cli-windows-amd64.exe" ./s3
-                sha1sum "s3-storage-cli-windows-amd64.exe"
+                go build -o "s3-cli-windows-amd64.exe" ./s3
+                sha1sum "s3-cli-windows-amd64.exe"

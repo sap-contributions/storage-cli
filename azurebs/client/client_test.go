@@ -5,8 +5,8 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/cloudfoundry/storage-cli/azure/client"
-	"github.com/cloudfoundry/storage-cli/azure/client/clientfakes"
+	"github.com/cloudfoundry/storage-cli/azurebs/client"
+	"github.com/cloudfoundry/storage-cli/azurebs/client/clientfakes"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/cloudfoundry/storage-cli/ali/config"
+	"github.com/cloudfoundry/storage-cli/alioss/config"
 	"github.com/onsi/gomega/gexec"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -26,7 +26,7 @@ var defaultConfig config.AliStorageConfig
 var _ = BeforeSuite(func() {
 	if len(cliPath) == 0 {
 		var err error
-		cliPath, err = gexec.Build("github.com/cloudfoundry/storage-cli/ali")
+		cliPath, err = gexec.Build("github.com/cloudfoundry/storage-cli/alioss")
 		Expect(err).ShouldNot(HaveOccurred())
 	}
 

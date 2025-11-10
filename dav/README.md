@@ -24,7 +24,7 @@ ginkgo -r -race -progress -mod vendor .
 
 The command `sign` generates a pre-signed url for a specific object, action and duration:
 
-`storage-cli-dav <objectID> <action: get|put> <duration>`
+`dav-cli <objectID> <action: get|put> <duration>`
 
 The request will be signed using HMAC-SHA256 with a secret provided in configuration.
 

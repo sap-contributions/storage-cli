@@ -19,24 +19,24 @@ Given a JSON config file (`config.json`)...
 ``` bash
 # Command: "put"
 # Upload a blob to the blobstore.
-./ali-storage-cli -c config.json put <path/to/file> <remote-blob>
+./alioss-cli -c config.json put <path/to/file> <remote-blob>
 
 # Command: "get"
 # Fetch a blob from the blobstore.
 # Destination file will be overwritten if exists.
-./ali-storage-cli -c config.json get <remote-blob> <path/to/file>
+./alioss-cli -c config.json get <remote-blob> <path/to/file>
 
 # Command: "delete"
 # Remove a blob from the blobstore.
-./ali-storage-cli -c config.json delete <remote-blob>
+./alioss-cli -c config.json delete <remote-blob>
 
 # Command: "exists"
 # Checks if blob exists in the blobstore.
-./ali-storage-cli -c config.json exists <remote-blob>
+./alioss-cli -c config.json exists <remote-blob>
 
 # Command: "sign"
 # Create a self-signed url for a blob in the blobstore.
-./ali-storage-cli -c config.json sign <remote-blob> <get|put> <seconds-to-expiration>
+./alioss-cli -c config.json sign <remote-blob> <get|put> <seconds-to-expiration>
 ```
 
 ### Using signed urls with curl

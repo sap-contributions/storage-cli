@@ -20,7 +20,7 @@ var largeContent string //nolint:unused
 var _ = BeforeSuite(func() {
 	if len(cliPath) == 0 {
 		var err error
-		cliPath, err = gexec.Build("github.com/cloudfoundry/storage-cli/azure")
+		cliPath, err = gexec.Build("github.com/cloudfoundry/storage-cli/azurebs")
 		Expect(err).ShouldNot(HaveOccurred())
 	}
 })

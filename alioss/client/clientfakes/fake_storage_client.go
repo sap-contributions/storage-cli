@@ -4,7 +4,7 @@ package clientfakes
 import (
 	"sync"
 
-	"github.com/cloudfoundry/storage-cli/ali/client"
+	"github.com/cloudfoundry/storage-cli/alioss/client"
 )
 
 type FakeStorageClient struct {

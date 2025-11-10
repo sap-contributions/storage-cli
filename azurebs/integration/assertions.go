@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"os"
 
-	"github.com/cloudfoundry/storage-cli/azure/config"
+	"github.com/cloudfoundry/storage-cli/azurebs/config"
 
 	. "github.com/onsi/gomega" //nolint:staticcheck
 )

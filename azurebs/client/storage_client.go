@@ -21,7 +21,7 @@ import (
 	azContainer "github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/container"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/sas"
 
-	"github.com/cloudfoundry/storage-cli/azure/config"
+	"github.com/cloudfoundry/storage-cli/azurebs/config"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . StorageClient

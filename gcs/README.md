@@ -9,30 +9,30 @@ This is **not** an official Google Product.
 
 ### Usage
 ```bash
-storage-cli-gcs --help
+gcs-cli --help
 ```
 ### Upload an object
 ```bash
-storage-cli-gcs  -c config.json put <path/to/file> <remote-blob>
+gcs-cli  -c config.json put <path/to/file> <remote-blob>
 ```
 ### Fetch an object
 ```bash
-storage-cli-gcs  -c config.json get <remote-blob> <path/to/file>
+gcs-cli  -c config.json get <remote-blob> <path/to/file>
 ```
 ### Delete an object
 ```bash
-storage-cli-gcs  -c config.json delete <remote-blob>
+gcs-cli  -c config.json delete <remote-blob>
 ```
 ### Check if an object exists
 ```bash
-storage-cli-gcs  -c config.json exists <remote-blob>
+gcs-cli  -c config.json exists <remote-blob>
 ```
 
 ### Generate a signed url for an object
 If there is an encryption key present in the config, then an additional header is sent
 
 ```bash
-storage-cli-gcs  -c config.json sign <remote-blob> <http action> <expiry>
+gcs-cli  -c config.json sign <remote-blob> <http action> <expiry>
 ```
 Where:
  - `<http action>` is GET, PUT, or DELETE

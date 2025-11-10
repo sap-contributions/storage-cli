@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cloudfoundry/storage-cli/azure/client"
+	"github.com/cloudfoundry/storage-cli/azurebs/client"
 )
 
 type FakeStorageClient struct {

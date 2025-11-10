@@ -19,24 +19,24 @@ Given a JSON config file (`config.json`)...
 ``` bash
 # Command: "put"
 # Upload a blob to the blobstore.
-./azure-storage-cli -c config.json put <path/to/file> <remote-blob> 
+./azurebs-cli -c config.json put <path/to/file> <remote-blob> 
 
 # Command: "get"
 # Fetch a blob from the blobstore.
 # Destination file will be overwritten if exists.
-./azure-storage-cli -c config.json get <remote-blob> <path/to/file>
+./azurebs-cli -c config.json get <remote-blob> <path/to/file>
 
 # Command: "delete"
 # Remove a blob from the blobstore.
-./azure-storage-cli -c config.json delete <remote-blob>
+./azurebs-cli -c config.json delete <remote-blob>
 
 # Command: "exists"
 # Checks if blob exists in the blobstore.
-./azure-storage-cli -c config.json exists <remote-blob>
+./azurebs-cli -c config.json exists <remote-blob>
 
 # Command: "sign"
 # Create a self-signed url for a blob in the blobstore.
-./azure-storage-cli -c config.json sign <remote-blob> <get|put> <seconds-to-expiration>
+./azurebs-cli -c config.json sign <remote-blob> <get|put> <seconds-to-expiration>
 ```
 
 ### Using signed urls with curl
