@@ -19,9 +19,9 @@ var _ = Describe("Client", func() {
 			aliBlobstore, err := client.New(&storageClient)
 			Expect(err).ToNot(HaveOccurred())
 
-			tmpFile, err := os.CreateTemp("", "azure-storage-cli-test")
+			tmpFile, _ := os.CreateTemp("", "azure-storage-cli-test") //nolint:errcheck
 
-			aliBlobstore.Put(tmpFile.Name(), "destination_object")
+			aliBlobstore.Put(tmpFile.Name(), "destination_object") //nolint:errcheck
 
 			Expect(storageClient.UploadCallCount()).To(Equal(1))
 			sourceFilePath, sourceFileMD5, destination := storageClient.UploadArgsForCall(0)
@@ -39,7 +39,7 @@ var _ = Describe("Client", func() {
 			aliBlobstore, err := client.New(&storageClient)
 			Expect(err).ToNot(HaveOccurred())
 
-			aliBlobstore.Get("source_object", "destination/file/path")
+			aliBlobstore.Get("source_object", "destination/file/path") //nolint:errcheck
 
 			Expect(storageClient.DownloadCallCount()).To(Equal(1))
 			sourceObject, destinationFilePath := storageClient.DownloadArgsForCall(0)
@@ -56,7 +56,7 @@ var _ = Describe("Client", func() {
 			aliBlobstore, err := client.New(&storageClient)
 			Expect(err).ToNot(HaveOccurred())
 
-			aliBlobstore.Delete("blob")
+			aliBlobstore.Delete("blob") //nolint:errcheck
 
 			Expect(storageClient.DeleteCallCount()).To(Equal(1))
 			object := storageClient.DeleteArgsForCall(0)
@@ -70,7 +70,8 @@ var _ = Describe("Client", func() {
 			storageClient := clientfakes.FakeStorageClient{}
 			storageClient.ExistsReturns(true, nil)
 
-			aliBlobstore, _ := client.New(&storageClient)
+			aliBlobstore, err := client.New(&storageClient)
+			Expect(err).NotTo(HaveOccurred())
 			existsState, err := aliBlobstore.Exists("blob")
 			Expect(existsState == true).To(BeTrue())
 			Expect(err).ToNot(HaveOccurred())
@@ -83,7 +84,8 @@ var _ = Describe("Client", func() {
 			storageClient := clientfakes.FakeStorageClient{}
 			storageClient.ExistsReturns(false, nil)
 
-			aliBlobstore, _ := client.New(&storageClient)
+			aliBlobstore, err := client.New(&storageClient)
+			Expect(err).NotTo(HaveOccurred())
 			existsState, err := aliBlobstore.Exists("blob")
 			Expect(existsState == false).To(BeTrue())
 			Expect(err).ToNot(HaveOccurred())
@@ -96,7 +98,8 @@ var _ = Describe("Client", func() {
 			storageClient := clientfakes.FakeStorageClient{}
 			storageClient.ExistsReturns(false, errors.New("boom"))
 
-			aliBlobstore, _ := client.New(&storageClient)
+			aliBlobstore, err := client.New(&storageClient)
+			Expect(err).NotTo(HaveOccurred())
 			existsState, err := aliBlobstore.Exists("blob")
 			Expect(existsState == false).To(BeTrue())
 			Expect(err).To(HaveOccurred())
@@ -111,7 +114,8 @@ var _ = Describe("Client", func() {
 			storageClient := clientfakes.FakeStorageClient{}
 			storageClient.SignedUrlGetReturns("https://the-signed-url", nil)
 
-			aliBlobstore, _ := client.New(&storageClient)
+			aliBlobstore, err := client.New(&storageClient)
+			Expect(err).NotTo(HaveOccurred())
 			url, err := aliBlobstore.Sign("blob", "get", 100)
 			Expect(url == "https://the-signed-url").To(BeTrue())
 			Expect(err).ToNot(HaveOccurred())
@@ -125,7 +129,8 @@ var _ = Describe("Client", func() {
 			storageClient := clientfakes.FakeStorageClient{}
 			storageClient.SignedUrlPutReturns("https://the-signed-url", nil)
 
-			aliBlobstore, _ := client.New(&storageClient)
+			aliBlobstore, err := client.New(&storageClient)
+			Expect(err).NotTo(HaveOccurred())
 			url, err := aliBlobstore.Sign("blob", "put", 100)
 			Expect(url == "https://the-signed-url").To(BeTrue())
 			Expect(err).ToNot(HaveOccurred())
@@ -139,7 +144,8 @@ var _ = Describe("Client", func() {
 			storageClient := clientfakes.FakeStorageClient{}
 			storageClient.SignedUrlGetReturns("", errors.New("boom"))
 
-			aliBlobstore, _ := client.New(&storageClient)
+			aliBlobstore, err := client.New(&storageClient)
+			Expect(err).NotTo(HaveOccurred())
 			url, err := aliBlobstore.Sign("blob", "unknown", 100)
 			Expect(url).To(Equal(""))
 			Expect(err).To(HaveOccurred())
