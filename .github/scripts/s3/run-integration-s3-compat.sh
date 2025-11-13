@@ -24,5 +24,5 @@ export S3_PORT=${s3_endpoint_port}
 
 pushd "${repo_root}" > /dev/null
   echo -e "\n running tests with $(go version)..."
-  scripts/ginkgo -r --focus="S3 COMPATIBLE" s3/integration/
+  ginkgo -r --focus="S3 COMPATIBLE" s3/integration/
 popd > /dev/null
