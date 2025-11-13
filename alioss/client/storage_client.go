@@ -1,7 +1,6 @@
 package client
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
@@ -53,7 +52,7 @@ func (dsc DefaultStorageClient) Upload(
 	sourceFileMD5 string,
 	destinationObject string,
 ) error {
-	log.Println(fmt.Sprintf("Uploading %s/%s", dsc.storageConfig.BucketName, destinationObject))
+	log.Printf("Uploading %s/%s\n", dsc.storageConfig.BucketName, destinationObject)
 
 	client, err := oss.New(dsc.storageConfig.Endpoint, dsc.storageConfig.AccessKeyID, dsc.storageConfig.AccessKeySecret)
 	if err != nil {
@@ -72,7 +71,7 @@ func (dsc DefaultStorageClient) Download(
 	sourceObject string,
 	destinationFilePath string,
 ) error {
-	log.Println(fmt.Sprintf("Downloading %s/%s", dsc.storageConfig.BucketName, sourceObject))
+	log.Printf("Downloading %s/%s\n", dsc.storageConfig.BucketName, sourceObject)
 
 	client, err := oss.New(dsc.storageConfig.Endpoint, dsc.storageConfig.AccessKeyID, dsc.storageConfig.AccessKeySecret)
 	if err != nil {
@@ -90,7 +89,7 @@ func (dsc DefaultStorageClient) Download(
 func (dsc DefaultStorageClient) Delete(
 	object string,
 ) error {
-	log.Println(fmt.Sprintf("Deleting %s/%s", dsc.storageConfig.BucketName, object))
+	log.Printf("Deleting %s/%s\n", dsc.storageConfig.BucketName, object)
 
 	client, err := oss.New(dsc.storageConfig.Endpoint, dsc.storageConfig.AccessKeyID, dsc.storageConfig.AccessKeySecret)
 	if err != nil {
@@ -106,7 +105,7 @@ func (dsc DefaultStorageClient) Delete(
 }
 
 func (dsc DefaultStorageClient) Exists(object string) (bool, error) {
-	log.Println(fmt.Sprintf("Checking if blob: %s/%s", dsc.storageConfig.BucketName, object))
+	log.Printf("Checking if blob: %s/%s\n", dsc.storageConfig.BucketName, object)
 
 	client, err := oss.New(dsc.storageConfig.Endpoint, dsc.storageConfig.AccessKeyID, dsc.storageConfig.AccessKeySecret)
 	if err != nil {
@@ -137,7 +136,7 @@ func (dsc DefaultStorageClient) SignedUrlPut(
 	expiredInSec int64,
 ) (string, error) {
 
-	log.Println(fmt.Sprintf("Getting signed PUT url for blob %s/%s", dsc.storageConfig.BucketName, object))
+	log.Printf("Getting signed PUT url for blob %s/%s\n", dsc.storageConfig.BucketName, object)
 
 	client, err := oss.New(dsc.storageConfig.Endpoint, dsc.storageConfig.AccessKeyID, dsc.storageConfig.AccessKeySecret)
 	if err != nil {
@@ -157,7 +156,7 @@ func (dsc DefaultStorageClient) SignedUrlGet(
 	expiredInSec int64,
 ) (string, error) {
 
-	log.Println(fmt.Sprintf("Getting signed GET url for blob %s/%s", dsc.storageConfig.BucketName, object))
+	log.Printf("Getting signed GET url for blob %s/%s\n", dsc.storageConfig.BucketName, object)
 
 	client, err := oss.New(dsc.storageConfig.Endpoint, dsc.storageConfig.AccessKeyID, dsc.storageConfig.AccessKeySecret)
 	if err != nil {

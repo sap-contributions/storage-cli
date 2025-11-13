@@ -16,9 +16,8 @@ jobs:
               uses: actions/setup-go@v6
               with:
                 go-version-file: go.mod
-            # TODO: Re-enable linting after fixing existing issues on alioss
-            # - name: Lint code
-            #   uses: golangci/golangci-lint-action@v8
+            - name: Lint code
+              uses: golangci/golangci-lint-action@v8
             - name: Cache Go modules
               uses: actions/cache@v4
               with:

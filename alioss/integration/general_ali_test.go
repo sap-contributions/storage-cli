@@ -2,7 +2,7 @@ package integration_test
 
 import (
 	"bytes"
-	"io/ioutil"
+
 	"os"
 
 	"github.com/cloudfoundry/storage-cli/alioss/config"
@@ -25,8 +25,8 @@ var _ = Describe("General testing for all Ali regions", func() {
 	})
 
 	AfterEach(func() {
-		defer func() { _ = os.Remove(configPath) }()
-		defer func() { _ = os.Remove(contentFile) }()
+		defer func() { _ = os.Remove(configPath) }()  //nolint:errcheck
+		defer func() { _ = os.Remove(contentFile) }() //nolint:errcheck
 	})
 
 	Describe("Invoking `put`", func() {
@@ -55,9 +55,9 @@ var _ = Describe("General testing for all Ali regions", func() {
 				Expect(cliSession.ExitCode()).To(BeZero())
 			}()
 
-			tmpLocalFile, _ := os.CreateTemp("", "ali-storage-cli-download")
-			tmpLocalFile.Close()
-			defer func() { _ = os.Remove(tmpLocalFile.Name()) }()
+			tmpLocalFile, _ := os.CreateTemp("", "ali-storage-cli-download") //nolint:errcheck
+			tmpLocalFile.Close()                                             //nolint:errcheck
+			defer func() { _ = os.Remove(tmpLocalFile.Name()) }()            //nolint:errcheck
 
 			contentFile = integration.MakeContentFile("initial content")
 			cliSession, err := integration.RunCli(cliPath, configPath, "put", contentFile, blobName)
@@ -68,7 +68,7 @@ var _ = Describe("General testing for all Ali regions", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(cliSession.ExitCode()).To(BeZero())
 
-			gottenBytes, _ := os.ReadFile(tmpLocalFile.Name())
+			gottenBytes, _ := os.ReadFile(tmpLocalFile.Name()) //nolint:errcheck
 			Expect(string(gottenBytes)).To(Equal("initial content"))
 
 			contentFile = integration.MakeContentFile("updated content")
@@ -80,7 +80,7 @@ var _ = Describe("General testing for all Ali regions", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(cliSession.ExitCode()).To(BeZero())
 
-			gottenBytes, _ = os.ReadFile(tmpLocalFile.Name())
+			gottenBytes, _ = os.ReadFile(tmpLocalFile.Name()) //nolint:errcheck
 			Expect(string(gottenBytes)).To(Equal("updated content"))
 		})
 
@@ -112,7 +112,7 @@ var _ = Describe("General testing for all Ali regions", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(cliSession.ExitCode()).To(BeZero())
 
-				_ = os.Remove(outputFilePath)
+				_ = os.Remove(outputFilePath) //nolint:errcheck
 			}()
 
 			cliSession, err := integration.RunCli(cliPath, configPath, "put", contentFile, blobName)
@@ -123,7 +123,7 @@ var _ = Describe("General testing for all Ali regions", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(cliSession.ExitCode()).To(BeZero())
 
-			fileContent, _ := ioutil.ReadFile(outputFilePath)
+			fileContent, _ := os.ReadFile(outputFilePath) //nolint:errcheck
 			Expect(string(fileContent)).To(Equal("foo"))
 		})
 	})
@@ -200,7 +200,7 @@ var _ = Describe("General testing for all Ali regions", func() {
 	Describe("Invoking `-v`", func() {
 		It("returns the cli version", func() {
 			configPath := integration.MakeConfigFile(&defaultConfig)
-			defer func() { _ = os.Remove(configPath) }()
+			defer func() { _ = os.Remove(configPath) }() //nolint:errcheck
 
 			cliSession, err := integration.RunCli(cliPath, configPath, "-v")
 			Expect(err).ToNot(HaveOccurred())

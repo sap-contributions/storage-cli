@@ -63,7 +63,7 @@ func (client *AliBlobstore) getMD5(filePath string) (string, error) {
 		return "", err
 	}
 
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	hash := md5.New()
 	_, err = io.Copy(hash, file)
