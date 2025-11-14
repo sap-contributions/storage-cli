@@ -80,7 +80,7 @@ clean-gcs:
 
 # Perform only unit tests
 test-unit:
-	cd ../../.. && go run github.com/onsi/ginkgo/v2/ginkgo -r --skip-package integration
+	cd ../../.. && go run github.com/onsi/ginkgo/v2/ginkgo --skip-package=integration ./gcs/...
 
 # Perform all tests, including integration tests.
 test-int:
@@ -102,6 +102,7 @@ help:
 	 @echo "  clean-gcs: remove external GCS buckets"
 	 @echo "  test-fast-int: run an reduced integration test suite (presubmit)"
 	 @echo "  test-int: run the full integration test (CI only)"
+	 @echo "  test-unit: run unit tests"
 	 @echo ""
 	 @echo "expected environment variables:"
 	 @echo "  GOOGLE_SERVICE_ACCOUNT=contents of a JSON service account key"
