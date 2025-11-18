@@ -1,3 +1,4 @@
+name: Azurebs Integration Tests
 
 on:
   pull_request:
