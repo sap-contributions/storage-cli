@@ -48,10 +48,11 @@ The command line tool expects a JSON configuration file. Run `storage-cli-gcs --
   will be used if they exist (either through `gcloud auth application-default login` or a [service account](https://cloud.google.com/iam/docs/understanding-service-accounts)).
   If they don't exist the client will fall back to `none` behavior.
 
-## Running Unit Tests
+## Running Tests
+## Unit Tests
 1. Use the command `make -C .github/scripts/gcs test-unit`
 
-## Running Integration Tests
+## Integration Tests
 1. Create a service account with the `Storage Admin` role.
 1. Create a new key for your service account and download credential as JSON file.
 1. Export json content with `export google_json_key_data="$(cat <path-to-json-file.json>)"`.
