@@ -10,7 +10,6 @@ jobs:
   gcs-integration-fast-tests:
     name:  GCS Integation Fast Tests
     runs-on: ubuntu-latest
-    environment: gcs-integration
     steps:
       - name: Checkout code
         uses: actions/checkout@v5     
@@ -41,7 +40,6 @@ jobs:
   gcs-integration-all-tests:
     name:  GCS Integation All Tests
     runs-on: ubuntu-latest
-    environment: gcs-integration
     steps:
       - name: Checkout code
         uses: actions/checkout@v5      
