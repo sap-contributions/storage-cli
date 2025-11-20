@@ -24,7 +24,7 @@ jobs:
         run: |
             echo "${{ secrets.GCP_SERVICE_ACCOUNT_BASE64 }}" | base64 -d > /tmp/gcp-key.json
             export google_json_key_data="$(cat /tmp/gcp-key.json)"
-            ./.github/scripts/gcs/setup.sh       
+            echo "key data len = ${#google_json_key_data}"     
       - name: Run Fast Tests
         run: |
           echo "${{ secrets.GCP_SERVICE_ACCOUNT_BASE64 }}" | base64 -d > /tmp/gcp-key.json
