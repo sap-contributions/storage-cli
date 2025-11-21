@@ -3,7 +3,7 @@
 A CLI for uploading, fetching and deleting content to/from an S3-compatible
 blobstore.
 
-Continuous integration: <https://bosh-cpi.ci.cf-app.com/pipelines/s3cli>
+Continuous integration: <https://github.com/cloudfoundry/storage-cli/actions/workflows/s3-integration.yml>
 
 Releases can be found in `https://s3.amazonaws.com/bosh-s3cli-artifacts`. The Linux binaries follow the regex `s3cli-(\d+\.\d+\.\d+)-linux-amd64` and the windows binaries `s3cli-(\d+\.\d+\.\d+)-windows-amd64`.
 
@@ -69,12 +69,12 @@ Follow these steps to make a contribution to the project:
   ```
 - Run tests to check your development environment setup
   ``` bash
-  scripts/ginkgo -r -race --skip-package=integration ./
+  ginkgo --race --skip-package=integration --randomize-all --cover -v -r ./s3/...
   ```
 - Make your changes (*be sure to add/update tests*)
 - Run tests to check your changes
   ``` bash
-  scripts/ginkgo -r -race --skip-package=integration ./
+  ginkgo --race --skip-package=integration --randomize-all --cover -v -r ./s3/...
   ```
 - Push changes to your fork
   ``` bash
@@ -84,7 +84,17 @@ Follow these steps to make a contribution to the project:
   ```
 - Create a GitHub pull request, selecting `main` as the target branch
 
-## Running integration tests
+## Testing
+
+### Unit Tests
+**Note:** Run the following commands from the repository root directory.
+  ``` bash
+  go install github.com/onsi/ginkgo/v2/ginkgo
+
+  ginkgo --skip-package=integration --randomize-all --cover -v -r ./s3/...
+  ```
+
+### Integration Tests
 
 To run the integration tests, export the following variables into your environment:
 
@@ -98,4 +108,4 @@ export stack_name=s3cli-iam
 export bucket_name=s3cli-pipeline
 ```
 
-Run `ci/tasks/setup-aws-infrastructure.sh` and `ci/tasks/teardown-infrastructure.sh` before and after the `run-integration-*` tests in `ci/tasks`.
+Run `./.github/scripts/s3/setup-aws-infrastructure.sh` and `./.github/scripts/s3/teardown-infrastructure.sh` before and after the `./.github/scripts/s3/run-integration-*` in repo's root folder.
