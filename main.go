@@ -35,8 +35,8 @@ func main() {
 	sty := storage.NewStrategy(client)
 
 	nonFlagArgs := flag.Args()
-	if len(nonFlagArgs) < 2 {
-		log.Fatalf("Expected at least two arguments got %d\n", len(nonFlagArgs))
+	if len(nonFlagArgs) < 1 {
+		log.Fatalf("Expected at least 1 arguments got 0")
 	}
 
 	cmd := nonFlagArgs[0]

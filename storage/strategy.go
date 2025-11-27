@@ -5,6 +5,8 @@ import (
 	"log"
 	"os"
 	"time"
+
+	"github.com/gogo/protobuf/plugin/stringer"
 )
 
 type Strategy struct {
@@ -95,6 +97,7 @@ func (sty Strategy) ExecuteCommand(cmd string, nonFlagArgs []string) {
 		}
 
 		objectID, action := nonFlagArgs[1], nonFlagArgs[2]
+		action = stringer.ToLower(action)
 
 		if action != "get" && action != "put" {
 			log.Fatalf("Action not implemented: %s. Available actions are 'get' and 'put'", action)
@@ -143,13 +146,13 @@ func (sty Strategy) ExecuteCommand(cmd string, nonFlagArgs []string) {
 		err := sty.str.Properties(nonFlagArgs[1])
 		fatalLog("properties", err)
 
-	case "ensure-bucket-exists":
+	case "ensure-storage-exists":
 		if len(nonFlagArgs) != 1 {
-			log.Fatalf("EnsureBucketExists method expected 1 arguments got %d\n", len(nonFlagArgs))
+			log.Fatalf("EnsureStorageExists method expected 1 arguments got %d\n", len(nonFlagArgs))
 		}
 
 		err := sty.str.EnsureStorageExists()
-		fatalLog("ensure-bucket-exists", err)
+		fatalLog("ensure-storage-exists", err)
 
 	default:
 		log.Fatalf("unknown command: '%s'\n", cmd)
