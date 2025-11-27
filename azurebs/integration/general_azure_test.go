@@ -63,7 +63,7 @@ var _ = Describe("General testing for all Azure regions", func() {
 		configurations,
 	)
 	DescribeTable("Assert Ensure Bucket Idempotent",
-		func(cfg *config.AZStorageConfig) { integration.AssertEnsureBucketIdempotent(cliPath, cfg) },
+		func(cfg *config.AZStorageConfig) { integration.AssertEnsureStorageIdempotent(cliPath, cfg) },
 		configurations,
 	)
 	DescribeTable("Assert Put Get With Special Names",
@@ -136,20 +136,19 @@ var _ = Describe("General testing for all Azure regions", func() {
 				Expect(cliSession.ExitCode()).To(BeZero())
 			}()
 
-			tmpLocalFile, _ := os.CreateTemp("", "azure-storage-cli-download") //nolint:errcheck
-			tmpLocalFile.Close()                                               //nolint:errcheck
-			os.Remove(tmpLocalFile.Name())                                     //nolint:errcheck
+			tmpLocalFileName := "azure-storage-cli-download"
+			defer os.Remove(tmpLocalFileName) //nolint:errcheck
 
 			contentFile = integration.MakeContentFile("initial content")
 			cliSession, err := integration.RunCli(cliPath, configPath, storageType, "put", contentFile, blobName)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(cliSession.ExitCode()).To(BeZero())
 
-			cliSession, err = integration.RunCli(cliPath, configPath, storageType, "get", blobName, tmpLocalFile.Name())
+			cliSession, err = integration.RunCli(cliPath, configPath, storageType, "get", blobName, tmpLocalFileName)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(cliSession.ExitCode()).To(BeZero())
 
-			gottenBytes, _ := os.ReadFile(tmpLocalFile.Name()) //nolint:errcheck
+			gottenBytes, _ := os.ReadFile(tmpLocalFileName) //nolint:errcheck
 			Expect(string(gottenBytes)).To(Equal("initial content"))
 
 			contentFile = integration.MakeContentFile("updated content")
@@ -157,11 +156,11 @@ var _ = Describe("General testing for all Azure regions", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(cliSession.ExitCode()).To(BeZero())
 
-			cliSession, err = integration.RunCli(cliPath, configPath, storageType, "get", blobName, tmpLocalFile.Name())
+			cliSession, err = integration.RunCli(cliPath, configPath, storageType, "get", blobName, tmpLocalFileName)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(cliSession.ExitCode()).To(BeZero())
 
-			gottenBytes, _ = os.ReadFile(tmpLocalFile.Name()) //nolint:errcheck
+			gottenBytes, _ = os.ReadFile(tmpLocalFileName) //nolint:errcheck
 			Expect(string(gottenBytes)).To(Equal("updated content"))
 		})
 

@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/cloudfoundry/storage-cli/azurebs/config"
-
 	. "github.com/onsi/gomega" //nolint:staticcheck
 )
 
@@ -135,15 +134,15 @@ func AssertSignedURLTimeouts(cliPath string, cfg *config.AZStorageConfig) {
 	Expect(url).To(ContainSubstring("timeout=2700"))
 }
 
-func AssertEnsureBucketIdempotent(cliPath string, cfg *config.AZStorageConfig) {
+func AssertEnsureStorageIdempotent(cliPath string, cfg *config.AZStorageConfig) {
 	configPath := MakeConfigFile(cfg)
 	defer os.Remove(configPath) //nolint:errcheck
 
-	s1, err := RunCli(cliPath, configPath, storageType, "ensure-bucket-exists")
+	s1, err := RunCli(cliPath, configPath, storageType, "ensure-storage-exists")
 	Expect(err).ToNot(HaveOccurred())
 	Expect(s1.ExitCode()).To(BeZero())
 
-	s2, err := RunCli(cliPath, configPath, storageType, "ensure-bucket-exists")
+	s2, err := RunCli(cliPath, configPath, storageType, "ensure-storage-exists")
 	Expect(err).ToNot(HaveOccurred())
 	Expect(s2.ExitCode()).To(BeZero())
 }
@@ -188,7 +187,7 @@ func AssertLifecycleWorks(cliPath string, cfg *config.AZStorageConfig) {
 	defer os.Remove(contentFile) //nolint:errcheck
 
 	// Ensure container/bucket exists
-	cliSession, err := RunCli(cliPath, configPath, storageType, "ensure-bucket-exists")
+	cliSession, err := RunCli(cliPath, configPath, storageType, "ensure-storage-exists")
 	Expect(err).ToNot(HaveOccurred())
 	Expect(cliSession.ExitCode()).To(BeZero())
 
@@ -264,7 +263,7 @@ func AssertDeleteNonexistentWorks(cliPath string, cfg *config.AZStorageConfig) {
 	configPath := MakeConfigFile(cfg)
 	defer os.Remove(configPath) //nolint:errcheck
 
-	cliSession, err := RunCli(cliPath, configPath, "delete", "non-existent-file")
+	cliSession, err := RunCli(cliPath, configPath, storageType, "delete", "non-existent-file")
 	Expect(err).ToNot(HaveOccurred())
 	Expect(cliSession.ExitCode()).To(BeZero())
 }
@@ -339,7 +338,7 @@ func AssertOnListDeleteLifecyle(cliPath string, cfg *config.AZStorageConfig) {
 	Expect(len(bytes.FieldsFunc(cliSession.Out.Contents(), func(r rune) bool { return r == '\n' || r == '\r' }))).To(BeNumerically("==", 2))
 
 	// Delete all other blobs
-	cliSession, err = RunCli(cliPath, configPath, "delete-recursive", "")
+	cliSession, err = RunCli(cliPath, configPath, storageType, "delete-recursive", "")
 	Expect(err).ToNot(HaveOccurred())
 	Expect(cliSession.ExitCode()).To(BeZero())
 
@@ -366,7 +365,7 @@ func AssertOnCopy(cliPath string, cfg *config.AZStorageConfig) {
 
 	// Copy the blob to a new name
 	copiedBlobName := GenerateRandomString()
-	cliSession, err = RunCli(cliPath, configPath, "copy", blobName, copiedBlobName)
+	cliSession, err = RunCli(cliPath, configPath, storageType, "copy", blobName, copiedBlobName)
 	Expect(err).ToNot(HaveOccurred())
 	Expect(cliSession.ExitCode()).To(BeZero())
 
