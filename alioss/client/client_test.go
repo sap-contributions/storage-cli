@@ -111,10 +111,10 @@ var _ = Describe("Client", func() {
 	})
 
 	Context("signed url", func() {
-		var time_sec time.Duration
+		var timeSec time.Duration
 
 		BeforeEach(func() {
-			time_sec = 100 * time.Second
+			timeSec = 100 * time.Second
 		})
 
 		It("returns a signed url for action 'get'", func() {
@@ -123,13 +123,13 @@ var _ = Describe("Client", func() {
 
 			aliBlobstore, err := client.New(&storageClient)
 			Expect(err).NotTo(HaveOccurred())
-			url, err := aliBlobstore.Sign("blob", "get", time_sec)
+			url, err := aliBlobstore.Sign("blob", "get", timeSec)
 			Expect(url == "https://the-signed-url").To(BeTrue())
 			Expect(err).ToNot(HaveOccurred())
 
 			object, expiration := storageClient.SignedUrlGetArgsForCall(0)
 			Expect(object).To(Equal("blob"))
-			Expect(int(expiration)).To(Equal(int(time_sec.Seconds())))
+			Expect(int(expiration)).To(Equal(int(timeSec.Seconds())))
 		})
 
 		It("returns a signed url for action 'put'", func() {
@@ -138,13 +138,13 @@ var _ = Describe("Client", func() {
 
 			aliBlobstore, err := client.New(&storageClient)
 			Expect(err).NotTo(HaveOccurred())
-			url, err := aliBlobstore.Sign("blob", "put", time_sec)
+			url, err := aliBlobstore.Sign("blob", "put", timeSec)
 			Expect(url == "https://the-signed-url").To(BeTrue())
 			Expect(err).ToNot(HaveOccurred())
 
 			object, expiration := storageClient.SignedUrlPutArgsForCall(0)
 			Expect(object).To(Equal("blob"))
-			Expect(int(expiration)).To(Equal(int(time_sec.Seconds())))
+			Expect(int(expiration)).To(Equal(int(timeSec.Seconds())))
 		})
 
 		It("fails on unknown action", func() {
@@ -153,7 +153,7 @@ var _ = Describe("Client", func() {
 
 			aliBlobstore, err := client.New(&storageClient)
 			Expect(err).NotTo(HaveOccurred())
-			url, err := aliBlobstore.Sign("blob", "unknown", time_sec)
+			url, err := aliBlobstore.Sign("blob", "unknown", timeSec)
 			Expect(url).To(Equal(""))
 			Expect(err).To(HaveOccurred())
 

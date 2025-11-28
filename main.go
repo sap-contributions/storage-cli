@@ -38,7 +38,7 @@ func main() {
 
 	nonFlagArgs := flag.Args()
 	if len(nonFlagArgs) < 1 {
-		log.Fatalf("Expected at least 1 arguments got 0")
+		log.Fatalf("Expected at least 1 argument got 0")
 	}
 
 	cmd := nonFlagArgs[0]
