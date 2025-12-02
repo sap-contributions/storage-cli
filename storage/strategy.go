@@ -7,9 +7,7 @@ import (
 	"time"
 )
 
-type NotExistsError struct {
-	err error
-}
+type NotExistsError struct{}
 
 func (e *NotExistsError) Error() string {
 	return "object does not exist"
@@ -32,7 +30,7 @@ func (sty *Strategy) ExecuteCommand(cmd string, nonFlagArgs []string) error {
 	switch cmd {
 	case "put":
 		if len(nonFlagArgs) != 3 {
-			return fmt.Errorf("Put method expected 3 arguments got %d\n", len(nonFlagArgs))
+			return fmt.Errorf("put method expected 3 arguments got %d", len(nonFlagArgs))
 		}
 		sourceFilePath, dst := nonFlagArgs[1], nonFlagArgs[2]
 
@@ -44,14 +42,14 @@ func (sty *Strategy) ExecuteCommand(cmd string, nonFlagArgs []string) error {
 
 	case "get":
 		if len(nonFlagArgs) != 3 {
-			return fmt.Errorf("Get method expected 3 arguments got %d\n", len(nonFlagArgs))
+			return fmt.Errorf("get method expected 3 arguments got %d", len(nonFlagArgs))
 		}
 		src, dst := nonFlagArgs[1], nonFlagArgs[2]
 		return sty.str.Get(src, dst)
 
 	case "copy":
 		if len(nonFlagArgs) != 3 {
-			return fmt.Errorf("Copy method expected 3 arguments got %d\n", len(nonFlagArgs))
+			return fmt.Errorf("copy method expected 3 arguments got %d", len(nonFlagArgs))
 		}
 
 		srcBlob, dstBlob := nonFlagArgs[1], nonFlagArgs[2]
@@ -59,14 +57,14 @@ func (sty *Strategy) ExecuteCommand(cmd string, nonFlagArgs []string) error {
 
 	case "delete":
 		if len(nonFlagArgs) != 2 {
-			return fmt.Errorf("Delete method expected 2 arguments got %d\n", len(nonFlagArgs))
+			return fmt.Errorf("delete method expected 2 arguments got %d", len(nonFlagArgs))
 		}
 		return sty.str.Delete(nonFlagArgs[1])
 
 	case "delete-recursive":
 		var prefix string
 		if len(nonFlagArgs) > 2 {
-			return fmt.Errorf("delete-recursive takes at most one argument (prefix) got %d\n", len(nonFlagArgs)-1)
+			return fmt.Errorf("delete-recursive takes at most one argument (prefix) got %d", len(nonFlagArgs)-1)
 		} else if len(nonFlagArgs) == 2 {
 			prefix = nonFlagArgs[1]
 		} else {
@@ -76,7 +74,7 @@ func (sty *Strategy) ExecuteCommand(cmd string, nonFlagArgs []string) error {
 
 	case "exists":
 		if len(nonFlagArgs) != 2 {
-			return fmt.Errorf("Exists method expected 2 arguments got %d\n", len(nonFlagArgs))
+			return fmt.Errorf("exists method expected 2 arguments got %d", len(nonFlagArgs))
 		}
 
 		exists, err := sty.str.Exists(nonFlagArgs[1])
@@ -84,28 +82,28 @@ func (sty *Strategy) ExecuteCommand(cmd string, nonFlagArgs []string) error {
 			return &NotExistsError{}
 		}
 		if err != nil {
-			return fmt.Errorf("Failed to check exist: %w", err)
+			return fmt.Errorf("failed to check exist: %w", err)
 		}
 
 	case "sign":
 		if len(nonFlagArgs) != 4 {
-			return fmt.Errorf("Sign method expects 3 arguments got %d\n", len(nonFlagArgs)-1)
+			return fmt.Errorf("sign method expects 3 arguments got %d", len(nonFlagArgs)-1)
 		}
 
 		objectID, action := nonFlagArgs[1], nonFlagArgs[2]
 		action = strings.ToLower(action)
 		if action != "get" && action != "put" {
-			return fmt.Errorf("Action not implemented: %s. Available actions are 'get' and 'put'", action)
+			return fmt.Errorf("action not implemented: %s. Available actions are 'get' and 'put'", action)
 		}
 
 		expiration, err := time.ParseDuration(nonFlagArgs[3])
 		if err != nil {
-			return fmt.Errorf("Expiration should be in the format of a duration i.e. 1h, 60m, 3600s. Got: %s", nonFlagArgs[3])
+			return fmt.Errorf("expiration should be in the format of a duration i.e. 1h, 60m, 3600s. Got: %s", nonFlagArgs[3])
 		}
 
 		signedURL, err := sty.str.Sign(objectID, action, expiration)
 		if err != nil {
-			return fmt.Errorf("Failed to sign request: %w", err)
+			return fmt.Errorf("failed to sign request: %w", err)
 		}
 		fmt.Print(signedURL)
 
@@ -117,13 +115,13 @@ func (sty *Strategy) ExecuteCommand(cmd string, nonFlagArgs []string) error {
 		} else if len(nonFlagArgs) == 2 {
 			prefix = nonFlagArgs[1]
 		} else {
-			return fmt.Errorf("List method expected 1 or 2 arguments, got %d\n", len(nonFlagArgs)-1)
+			return fmt.Errorf("list method expected 1 or 2 arguments, got %d", len(nonFlagArgs)-1)
 		}
 
 		var objects []string
 		objects, err := sty.str.List(prefix)
 		if err != nil {
-			return fmt.Errorf("Failed to list objects: %w", err)
+			return fmt.Errorf("failed to list objects: %w", err)
 		}
 
 		for _, object := range objects {
@@ -132,18 +130,18 @@ func (sty *Strategy) ExecuteCommand(cmd string, nonFlagArgs []string) error {
 
 	case "properties":
 		if len(nonFlagArgs) != 2 {
-			return fmt.Errorf("Properties method expected 2 arguments got %d\n", len(nonFlagArgs))
+			return fmt.Errorf("properties method expected 2 arguments got %d", len(nonFlagArgs))
 		}
 		return sty.str.Properties(nonFlagArgs[1])
 
 	case "ensure-storage-exists":
 		if len(nonFlagArgs) != 1 {
-			return fmt.Errorf("EnsureStorageExists method expected 1 arguments got %d\n", len(nonFlagArgs))
+			return fmt.Errorf("ensureStorageExists method expected 1 arguments got %d", len(nonFlagArgs))
 		}
 		return sty.str.EnsureStorageExists()
 
 	default:
-		return fmt.Errorf("unknown command: '%s'\n", cmd)
+		return fmt.Errorf("unknown command: '%s'", cmd)
 	}
 
 	return nil

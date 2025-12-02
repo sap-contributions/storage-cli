@@ -21,15 +21,6 @@ var _ = Describe("Execute Command", func() {
 	})
 
 	Context("Put", func() {
-		// BeforeEach(func() {
-		// 	tempFile, _ = os.CreateTemp("", sourceFileName) //nolint:errcheck
-		// 	tempFile.Close()                                //nolint:errcheck
-		// })
-
-		// AfterEach(func() {
-		// 	os.Remove(tempFile.Name()) //nolint:errcheck
-		// })
-
 		It("Successfull", func() {
 			tempFile, _ = os.CreateTemp("", sourceFileName) //nolint:errcheck
 			tempFile.Close()                                //nolint:errcheck
@@ -49,7 +40,7 @@ var _ = Describe("Execute Command", func() {
 
 		It("Wrong number of parameters", func() {
 			err := strategy.ExecuteCommand("put", []string{"put", "source"})
-			Expect(err.Error()).To(ContainSubstring("Put method expected 3 arguments got"))
+			Expect(err.Error()).To(ContainSubstring("put method expected 3 arguments got"))
 		})
 
 	})
@@ -64,7 +55,7 @@ var _ = Describe("Execute Command", func() {
 
 		It("Wrong number of parameters", func() {
 			err := strategy.ExecuteCommand("get", []string{"get", "source"})
-			Expect(err.Error()).To(ContainSubstring("Get method expected 3 arguments got"))
+			Expect(err.Error()).To(ContainSubstring("get method expected 3 arguments got"))
 		})
 
 	})
@@ -79,7 +70,7 @@ var _ = Describe("Execute Command", func() {
 
 		It("Wrong number of parameters", func() {
 			err := strategy.ExecuteCommand("copy", []string{"copy", "source"})
-			Expect(err.Error()).To(ContainSubstring("Copy method expected 3 arguments got"))
+			Expect(err.Error()).To(ContainSubstring("copy method expected 3 arguments got"))
 		})
 
 	})
@@ -94,7 +85,7 @@ var _ = Describe("Execute Command", func() {
 
 		It("Wrong number of parameters", func() {
 			err := strategy.ExecuteCommand("delete", []string{"delete"})
-			Expect(err.Error()).To(ContainSubstring("Delete method expected 2 arguments got"))
+			Expect(err.Error()).To(ContainSubstring("delete method expected 2 arguments got"))
 		})
 
 	})
@@ -163,19 +154,19 @@ var _ = Describe("Execute Command", func() {
 
 		It("Wrong action", func() {
 			err := strategy.ExecuteCommand("sign", []string{"sign", "object", "delete", "10s"})
-			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("Action not implemented: %s. Available actions are 'get' and 'put'", "delete")))
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("action not implemented: %s. Available actions are 'get' and 'put'", "delete")))
 
 		})
 
 		It("Wrong time format", func() {
 			err := strategy.ExecuteCommand("sign", []string{"sign", "object", "put", "10"})
-			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("Expiration should be in the format of a duration i.e. 1h, 60m, 3600s. Got: %s", "10")))
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("expiration should be in the format of a duration i.e. 1h, 60m, 3600s. Got: %s", "10")))
 
 		})
 
 		It("Wrong number of parameters", func() {
 			err := strategy.ExecuteCommand("sign", []string{"sign", "object", "put"})
-			Expect(err.Error()).To(ContainSubstring("Sign method expects 3 arguments got"))
+			Expect(err.Error()).To(ContainSubstring("sign method expects 3 arguments got"))
 
 		})
 
@@ -200,7 +191,7 @@ var _ = Describe("Execute Command", func() {
 
 		It("Wrong number of parameters", func() {
 			err := strategy.ExecuteCommand("list", []string{})
-			Expect(err.Error()).To(ContainSubstring("List method expected 1 or 2 arguments, got"))
+			Expect(err.Error()).To(ContainSubstring("list method expected 1 or 2 arguments, got"))
 		})
 
 	})
@@ -215,7 +206,7 @@ var _ = Describe("Execute Command", func() {
 
 		It("Wrong number of parameters", func() {
 			err := strategy.ExecuteCommand("properties", []string{"properties"})
-			Expect(err.Error()).To(ContainSubstring("Properties method expected 2 arguments got"))
+			Expect(err.Error()).To(ContainSubstring("properties method expected 2 arguments got"))
 		})
 
 	})
@@ -230,7 +221,7 @@ var _ = Describe("Execute Command", func() {
 
 		It("Wrong number of parameters", func() {
 			err := strategy.ExecuteCommand("ensure-storage-exists", []string{"ensure-storage-exists", "extra-parameter"})
-			Expect(err.Error()).To(ContainSubstring("EnsureStorageExists method expected 1 arguments got"))
+			Expect(err.Error()).To(ContainSubstring("ensureStorageExists method expected 1 arguments got"))
 		})
 
 	})
@@ -238,7 +229,7 @@ var _ = Describe("Execute Command", func() {
 	Context("Unsupported command", func() {
 		It("Successfull", func() {
 			err := strategy.ExecuteCommand("unsupported-command", []string{"unsupported-command"})
-			Expect(err.Error()).To(ContainSubstring("unknown command: '%s'\n", "unsupported-command"))
+			Expect(err.Error()).To(ContainSubstring("unknown command: '%s'", "unsupported-command"))
 
 		})
 
