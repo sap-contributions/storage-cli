@@ -65,6 +65,6 @@ func RunCli(cliPath string, configPath string, storageType string, subcommand st
 	if err != nil {
 		return nil, err
 	}
-	gexecSession.Wait(1 * time.Minute)
+	gexecSession.Wait(5 * time.Minute)
 	return gexecSession, nil
 }

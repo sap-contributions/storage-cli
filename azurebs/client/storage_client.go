@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"strconv"
@@ -17,19 +16,20 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 	azBlob "github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blob"
-	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blockblob"
+	blockblob "github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blockblob"
 	azContainer "github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/container"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/sas"
 
 	"github.com/cloudfoundry/storage-cli/azurebs/config"
+	. "github.com/onsi/ginkgo/v2"
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . StorageClient
 type StorageClient interface {
 	Upload(
-		source io.ReadSeekCloser,
+		source *os.File,
 		dest string,
-	) ([]byte, error)
+	) error
 
 	Download(
 		source string,
@@ -86,9 +86,9 @@ func NewStorageClient(storageConfig config.AZStorageConfig) (StorageClient, erro
 }
 
 func (dsc DefaultStorageClient) Upload(
-	source io.ReadSeekCloser,
+	source *os.File,
 	dest string,
-) ([]byte, error) {
+) error {
 	blobURL := fmt.Sprintf("%s/%s", dsc.serviceURL, dest)
 
 	var ctx context.Context
@@ -99,11 +99,11 @@ func (dsc DefaultStorageClient) Upload(
 		timeout := time.Duration(timeoutInt) * time.Second
 		if timeout < 1 && err == nil {
 			log.Printf("Invalid time \"%s\", need at least 1 second", dsc.storageConfig.Timeout)
-			return nil, fmt.Errorf("invalid time: %w", err)
+			return fmt.Errorf("invalid time: %w", err)
 		}
 		if err != nil {
 			log.Printf("Invalid timeout format \"%s\", need \"<seconds in number>\" e.g. 30", dsc.storageConfig.Timeout)
-			return nil, fmt.Errorf("invalid timeout format: %w", err)
+			return fmt.Errorf("invalid timeout format: %w", err)
 		}
 		log.Println(fmt.Sprintf("Uploading %s with a timeout of %s", blobURL, timeout)) //nolint:staticcheck
 		ctx, cancel = context.WithTimeout(context.Background(), timeout)
@@ -115,16 +115,20 @@ func (dsc DefaultStorageClient) Upload(
 
 	client, err := blockblob.NewClientWithSharedKeyCredential(blobURL, dsc.credential, nil)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	uploadResponse, err := client.Upload(ctx, source, nil)
+	// if size>256MB, performs concurent upload with chunk size of 4MB and 5 goroutine (default values from azure)
+	_, err = client.UploadFile(ctx, source, nil)
+
 	if err != nil {
 		if dsc.storageConfig.Timeout != "" && errors.Is(err, context.DeadlineExceeded) {
-			return nil, fmt.Errorf("upload failed: timeout of %s reached while uploading %s", dsc.storageConfig.Timeout, dest)
+			return fmt.Errorf("upload failed: timeout of %s reached while uploading %s", dsc.storageConfig.Timeout, dest)
 		}
-		return nil, fmt.Errorf("upload failure: %w", err)
+		return fmt.Errorf("upload failure: %w", err)
 	}
-	return uploadResponse.ContentMD5, err
+
+	return nil
+
 }
 
 func (dsc DefaultStorageClient) Download(
@@ -140,6 +144,7 @@ func (dsc DefaultStorageClient) Download(
 		return err
 	}
 
+	//performs concurent download with chunk size of 4MB and 5 goroutine (default values from azure)
 	blobSize, err := client.DownloadFile(context.Background(), dest, nil) //nolint:ineffassign,staticcheck
 	if err != nil {
 		return err
@@ -395,6 +400,9 @@ func (dsc DefaultStorageClient) Properties(
 		LastModified:  *resp.LastModified,
 		ContentLength: *resp.ContentLength,
 	}
+
+	GinkgoWriter.Printf("Successfully uploaded file getting in probs md5 %v", resp.ContentMD5)
+	fmt.Printf("does not match the source file MD5 probs %v", resp.ContentMD5)
 
 	output, err := json.MarshalIndent(props, "", "  ")
 	if err != nil {

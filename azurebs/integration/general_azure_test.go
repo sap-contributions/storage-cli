@@ -3,6 +3,7 @@ package integration_test
 import (
 	"bytes"
 	"os"
+	"time"
 
 	"github.com/cloudfoundry/storage-cli/azurebs/config"
 	"github.com/cloudfoundry/storage-cli/azurebs/integration"
@@ -103,6 +104,7 @@ var _ = Describe("General testing for all Azure regions", func() {
 
 		BeforeEach(func() {
 			blobName = integration.GenerateRandomString()
+			defaultConfig.Timeout = "600"
 			configPath = integration.MakeConfigFile(&defaultConfig)
 			contentFile = integration.MakeContentFile("foo")
 		})
@@ -180,7 +182,46 @@ var _ = Describe("General testing for all Azure regions", func() {
 			consoleOutput := bytes.NewBuffer(cliSession.Err.Contents()).String()
 			Expect(consoleOutput).To(ContainSubstring("upload failure"))
 		})
+
+		Context("Big file", func() {
+
+			FIt("Put", func(ctx SpecContext) {
+				twoGB := 1024 * 1024 * 1024 * 2
+				largeFile := integration.MakeContentFile(integration.GenerateRandomString(twoGB))
+				// sFile, err := os.Open(largeFile)
+				// file, err := os.Create("/Users/i759280/SAPDevelop/repos/storage-cli/generated")
+				// _, err = io.Copy(sFile, file)
+				// sFile.Close()
+
+				defer os.Remove(largeFile) //nolint:errcheck
+
+				start := time.Now()
+				cliSession, err := integration.RunCli(cliPath, configPath, storageType, "put", largeFile, blobName)
+				elapsed := time.Since(start)
+				GinkgoWriter.Println("Upload took -------> %v", elapsed)
+
+				Expect(err).ToNot(HaveOccurred())
+				Expect(cliSession.ExitCode()).To(BeZero())
+
+				cliSession, err = integration.RunCli(cliPath, configPath, storageType, "exists", blobName)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(cliSession.ExitCode()).To(BeZero())
+				Expect(string(cliSession.Err.Contents())).To(MatchRegexp("File '" + blobName + "' exists in bucket '" + defaultConfig.ContainerName + "'"))
+
+				// downloadTempFile, err := os.CreateTemp("", "download_uploaded")
+				// // defer os.Remove(downloadTempFile.Name())
+				// downloadTempFile.Close()
+
+				// cliSession, err = integration.RunCli(cliPath, configPath, storageType, "get", blobName, "download_uploaded")
+				// Expect(err).ToNot(HaveOccurred())
+				// Expect(cliSession.ExitCode()).To(BeZero())
+
+			})
+
+		})
+
 	})
+
 	Describe("Invoking `-v`", func() {
 		It("returns the cli version", func() {
 			integration.AssertOnCliVersion(cliPath, &defaultConfig)
