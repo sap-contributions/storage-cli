@@ -64,6 +64,9 @@ func (dsc DefaultStorageClient) Upload(
 		return err
 	}
 
+	// it is not and parallel upload, We have to use UploadFile, but it has min and max limit( oss: part size invalid range (100KB, 5GB] ),
+	// so we can use mix PutObjectFromFile and UploadFile together to achive parallelisim or we have to
+	// go with v2, simpler implementation(https://www.alibabacloud.com/help/en/oss/developer-reference/v2-uploader?spm=a2c63.p38356.help-menu-31815.d_1_1_4_1_0_5.f0e47ea6QH2gcV)
 	return bucket.PutObjectFromFile(destinationObject, sourceFilePath, oss.ContentMD5(sourceFileMD5))
 }
 

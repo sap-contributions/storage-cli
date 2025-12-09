@@ -8,8 +8,6 @@ import (
 	"os"
 	"strings"
 	"time"
-
-	. "github.com/onsi/ginkgo/v2"
 )
 
 type AzBlobstore struct {
@@ -21,10 +19,6 @@ func New(storageClient StorageClient) (AzBlobstore, error) {
 }
 
 func (client *AzBlobstore) Put(sourceFilePath string, dest string) error {
-	// sourceMD5, err := client.getMD5(sourceFilePath)
-	// if err != nil {
-	// 	return err
-	// }
 
 	source, err := os.Open(sourceFilePath)
 	if err != nil {
@@ -36,20 +30,6 @@ func (client *AzBlobstore) Put(sourceFilePath string, dest string) error {
 	if err != nil {
 		return fmt.Errorf("upload failure: %w", err)
 	}
-
-	// GinkgoWriter.Printf("Successfully uploaded file %v  -- %v", md5, sourceMD5)
-	// fmt.Printf("the upload responded an MD5 %v does not match the source file MD5 %v", md5, sourceMD5)
-
-	// if !bytes.Equal(sourceMD5, md5) {
-	// 	log.Println("The upload failed because of an MD5 inconsistency. Triggering blob deletion ...")
-
-	// 	err := client.storageClient.Delete(dest)
-	// 	if err != nil {
-	// 		log.Println(fmt.Errorf("blob deletion failed: %w", err))
-	// 	}
-
-	// 	return fmt.Errorf("the upload responded an MD5 %v does not match the source file MD5 %v", md5, sourceMD5)
-	// }
 
 	return nil
 }
