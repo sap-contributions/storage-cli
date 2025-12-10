@@ -132,6 +132,53 @@ Option 2: Release via Draft Release
 - The release will appear immediately on the Releases page. This action will also trigger the *Release Manual* workflow, which will build the artifacts and upload them to the published release once the workflow finishes.
 
 
+## Release
+
+Releases are automatically created for Windows and Linux platforms through the `release.yml` GitHub Actions workflow.
+
+### Automated Release Process
+
+When changes are merged into the `main` branch, a new release is automatically triggered. The version number is determined using **semantic versioning** based on conventional commit message prefixes:
+
+**Version Bump Rules:**
+- `feat:` - New feature → **Minor version bump** (v1.2.0 → v1.3.0)
+- `fix:` - Bug fix → **Patch version bump** (v1.2.0 → v1.2.1)
+- `BREAKING CHANGE:` - Breaking changes → **Major version bump** (v1.2.0 → v2.0.0)
+- 
+
+**No Release Triggered:**
+- `docs:` - Documentation changes
+- `chore:` - Maintenance tasks (dependencies, build config, tooling)
+- `refactor:` - Code restructuring without behavior changes
+- `test:` - Test updates
+- `style:` - Formatting and whitespace
+- `ci:` - CI/CD configuration changes
+- `perf:` - Performance improvements
+- `build:` - Dependabot commits
+
+### Manual Release
+
+For manual releases (e.g., major version updates or hotfixes), use the GitHub Actions **workflow_dispatch** trigger with a version bump type selector (patch/minor/major).
+
+### Commit Message Examples
+
+```bash
+# Patch release (v1.2.3 → v1.2.4)
+git commit -m "fix: resolve upload timeout issue"
+
+# Minor release (v1.2.3 → v1.3.0)
+git commit -m "feat: add retry logic for failed uploads"
+
+# Major release (v1.2.3 → v2.0.0)
+git commit -m "feat: redesign upload API
+
+BREAKING CHANGE: Upload() signature changed to return structured error"
+
+# No release
+git commit -m "docs: update Azure Blob Storage usage examples"
+git commit -m "chore: upgrade dependencies"
+```
+
 ## Notes
 These commit IDs represent the last migration checkpoint from each provider's original repository, marking the final commit that was copied during the consolidation process.
 
