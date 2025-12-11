@@ -63,6 +63,7 @@ jobs:
           PATCH_STRING_TOKEN: "fix:,Fix:,FIX:"
           NONE_STRING_TOKEN: "chore:,docs:,test:,ci:,refactor:,style:,build:,Chore:,Docs:,Test:,CI:,Refactor:,Style:,Build:"
           PRERELEASE: false
+          VERBOSE: true
 
       - name: Export Version Variable
         run: |
