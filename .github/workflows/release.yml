@@ -130,4 +130,6 @@ jobs:
             aws s3 cp "storage-cli-${{ env.VERSION_NUMBER }}-linux-amd64" \
               "s3://storage-cli-artifacts/storage-cli-${{ env.VERSION_NUMBER }}-linux-amd64"
             aws s3 cp "storage-cli-${{ env.VERSION_NUMBER }}-windows-amd64.exe" \
-            "s3://storage-cli-artifacts/storage-cli-${{ env.VERSION_NUMBER }}-windows-amd64.exe"   
+            "s3://storage-cli-artifacts/storage-cli-${{ env.VERSION_NUMBER }}-windows-amd64.exe"
+            
+            
