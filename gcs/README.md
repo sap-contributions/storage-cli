@@ -11,6 +11,20 @@ This is **not** an official Google Product.
 ## GCS-Specific Configuration
 
 The GCS client requires a JSON configuration file.
+``` json
+{
+  "bucket_name":            "<string> (required)",
+  "credentials_source":     "<string> ['static'|'none'|""]",
+  "json_key":               "<string> (required if credentials_source = 'static')",
+  "storage_class":          "<string> (optional - default: 'STANDARD', check for more options=https://docs.cloud.google.com/storage/docs/storage-classes)",
+  "encryption_key":         "<string> (optional)",
+}
+```
+
+### Credentials Source Types
+* **"":** specifies that credentials should be detected. Application Default Credentials will be used if avaliable. A read-only client will be used otherwise.
+* **"none":** specifies that credentials are explicitly empty and that the client should be restricted to a read-only scope.
+* **"static:"** specifies that a service account file included in json_key should be used for authentication.
 
 ### Authentication Methods (`credentials_source`)
 * `static`: A [service account](https://cloud.google.com/iam/docs/creating-managing-service-account-keys) key will be provided via the `json_key` field.
