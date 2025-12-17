@@ -104,6 +104,33 @@ Follow these steps to make a contribution to the project:
   ```
 - Create a GitHub pull request, selecting `main` as the target branch
 
+## Releases
+
+### Manual Release
+Releases must be triggered manually by an approver. This can be done either via `GitHub Actions` (workflow dispatch) or through the `GitHub Releases` page using the **Draft a new release** option. The *Release Manual* workflow is responsible for creating and completing the release.
+
+Option 1: Release via Workflow Dispatch
+
+- Go to Actions and select the *Release Manual* workflow.
+
+- Click **Run workflow**.
+
+- Enter the next incremented version number with the v prefix (for example, v1.2.3).
+
+- The workflow will create the release and upload the build artifacts once completed.
+
+Option 2: Release via Draft Release
+
+- Go to Releases and click **Draft a new release**.
+
+- Create a new tag using the next incremented version with the v prefix.
+
+- Fill in the release title and description.
+
+- Click Publish release.
+
+- The release will appear immediately on the Releases page. This action will also trigger the *Release Manual* workflow, which will build the artifacts and upload them to the published release once the workflow finishes.
+
 
 ## Notes
 These commit IDs represent the last migration checkpoint from each provider's original repository, marking the final commit that was copied during the consolidation process.
