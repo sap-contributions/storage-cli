@@ -1,0 +1,116 @@
+name: Manual Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.2.3)'
+        required: true
+        type: string
+  release:
+    types: [published]
+
+jobs:
+  tests: 
+    name: Run Unit Tests
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: Checkout Into Source Code
+        uses: actions/checkout@v5
+
+      - name: Set up Go    
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      - name: Lint code
+        uses: golangci/golangci-lint-action@v8
+
+      - name: Run Unit Tests
+        run: |
+              export CGO_ENABLED=0
+              go version
+              go run github.com/onsi/ginkgo/v2/ginkgo --skip-package=integration ./...
+
+  build-and-release:
+    name: Build and Release
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Into Source Code
+        uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+
+      - name: Determine Version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            INPUT_VERSION="${{ github.event.inputs.version }}"
+          else
+            INPUT_VERSION="${{ github.event.release.tag_name }}"
+          fi
+          
+          # Ensure version starts with 'v'
+          if [[ "$INPUT_VERSION" == v* ]]; then
+            VERSION="$INPUT_VERSION"
+          else
+            VERSION="v$INPUT_VERSION"
+          fi
+          
+          VERSION_NUMBER=${VERSION#v}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "VERSION_NUMBER=$VERSION_NUMBER" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION (number: $VERSION_NUMBER)"
+
+      - name: Create Tag (if workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ steps.version.outputs.VERSION }}" -m "Release ${{ steps.version.outputs.VERSION }}"
+          git push origin "${{ steps.version.outputs.VERSION }}"
+
+      - name: Build for Linux
+        env:
+          GOOS: linux
+          GOARCH: amd64
+          CGO_ENABLED: 0
+        run: |
+              echo "Building Storage CLI for Linux"
+              go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION_NUMBER }}" \
+              -o "storage-cli-${{ steps.version.outputs.VERSION_NUMBER }}-linux-amd64"
+              echo "### Linux Build Checksums" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              sha1sum "storage-cli-${{ steps.version.outputs.VERSION_NUMBER }}-linux-amd64" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+      
+      - name: Build for Windows
+        env:
+          GOOS: windows
+          GOARCH: amd64
+          CGO_ENABLED: 0
+        run: |
+              echo "Building Storage CLI for Windows"
+              go build -ldflags "-X main.version=${{ steps.version.outputs.VERSION_NUMBER }}" \
+              -o "storage-cli-${{ steps.version.outputs.VERSION_NUMBER }}-windows-amd64.exe"
+              echo "### Windows Build Checksums" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              sha1sum "storage-cli-${{ steps.version.outputs.VERSION_NUMBER }}-windows-amd64.exe" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+      
+      - name: Create or Update Github Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.version.outputs.VERSION }}
+          name: Release ${{ steps.version.outputs.VERSION }}
+          body: Manual release ${{ steps.version.outputs.VERSION }}
+          artifacts: |
+            storage-cli-${{ steps.version.outputs.VERSION_NUMBER }}-linux-amd64
+            storage-cli-${{ steps.version.outputs.VERSION_NUMBER }}-windows-amd64.exe
+          token: ${{ secrets.GITHUB_TOKEN }}
+          allowUpdates: true
+          makeLatest: true
