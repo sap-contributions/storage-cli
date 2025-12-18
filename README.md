@@ -133,11 +133,7 @@ Option 2: Release via Draft Release
 - The release will appear immediately on the Releases page. This action will also trigger the *Release Manual* workflow, which will build the artifacts and upload them to the published release once the workflow finishes.
 
 
-## Release
-
-Releases are automatically created for Windows and Linux platforms through the `release.yml` GitHub Actions workflow.
-
-### Automated Release Process
+### Automated Release
 
 When changes are merged into the `main` branch, a new release is automatically triggered. The version number is determined using **semantic versioning** based on conventional commit message prefixes:
 
@@ -156,11 +152,9 @@ When changes are merged into the `main` branch, a new release is automatically t
     - `build:` - Dependabot commits
     - `no conventional commits` - text without specifying any of above
 
-### Manual Release
+**Note: When the repo becomes more stable, we are gonna merge these 2 release logic.**
 
-For manual releases (e.g., major version updates or hotfixes), use the GitHub Actions **workflow_dispatch** trigger with a version bump type selector (patch/minor/major).
-
-### Commit Message Examples
+#### Commit Message Examples
 
 ```bash
 # Major release (v1.2.3 → v2.0.0)
