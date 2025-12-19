@@ -18,6 +18,7 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -38,6 +39,12 @@ import (
 // ErrInvalidROWriteOperation is returned when credentials associated with the
 // client disallow an attempted write operation.
 var ErrInvalidROWriteOperation = errors.New("the client operates in read only mode. Change 'credentials_source' parameter value ")
+
+type BlobProperties struct {
+	ETag          string    `json:"etag,omitempty"`
+	LastModified  time.Time `json:"last_modified,omitempty"`
+	ContentLength int64     `json:"content_length,omitempty"`
+}
 
 // GCSBlobstore encapsulates interaction with the GCS blobstore
 type GCSBlobstore struct {
@@ -290,7 +297,29 @@ func (client *GCSBlobstore) Copy(srcBlob string, dstBlob string) error {
 }
 
 func (client *GCSBlobstore) Properties(dest string) error {
-	return errors.New("not implemented")
+	if client.readOnly() {
+		return ErrInvalidROWriteOperation
+	}
+	oh := client.getObjectHandle(client.authenticatedGCS, dest)
+	attr, err := oh.Attrs(context.Background())
+
+	if err != nil {
+		return fmt.Errorf("getting attributes: %w", err)
+	}
+
+	props := BlobProperties{
+		ETag:          strings.Trim(attr.Etag, `"`),
+		LastModified:  attr.Updated,
+		ContentLength: attr.Size,
+	}
+
+	output, err := json.MarshalIndent(props, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal blob properties: %w", err)
+	}
+
+	fmt.Println(string(output))
+	return nil
 }
 
 func (client *GCSBlobstore) EnsureStorageExists() error {
