@@ -132,6 +132,16 @@ var _ = Describe("Integration", func() {
 			AssertCopyLifecycle(gcsCLIPath, env)
 		}, configurations)
 
+		DescribeTable("invalid copy should fail", func(config *config.GCSCli) {
+			env.AddConfig(config)
+
+			session, err := RunGCSCLI(gcsCLIPath, env.ConfigPath, storageType, "copy", "source-object", "dest-object")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(session.ExitCode()).ToNot(BeZero())
+			Expect(string(session.Err.Contents())).To(ContainSubstring("object doesn't exist"))
+
+		}, configurations)
+
 		Context("when bucket is not exist", func() {
 			DescribeTable("ensure storage exist will create a new bucket", func(cfg *config.GCSCli) {
 				// create new a newCfg instead of modifying shared cfg accross all tests
@@ -171,5 +181,18 @@ var _ = Describe("Integration", func() {
 			}, configurations)
 
 		})
+
+		DescribeTable("delete-recursive is idempotent", func(config *config.GCSCli) {
+			env.AddConfig(config)
+
+			session, err := RunGCSCLI(gcsCLIPath, env.ConfigPath, storageType, "delete-recursive")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(session.ExitCode()).To(BeZero())
+
+			session, err = RunGCSCLI(gcsCLIPath, env.ConfigPath, storageType, "delete-recursive")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(session.ExitCode()).To(BeZero())
+
+		}, configurations)
 	})
 })
