@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
+	"path/filepath"
 
 	storage "github.com/cloudfoundry/storage-cli/storage"
 )
@@ -25,11 +27,28 @@ func fatalLog(cmd string, err error) {
 
 }
 
+// creates path and file if not exist, othwerwise return fp
+// of the existing file
+func createOrUseProvided(logFile string) *os.File {
+	if _, err := os.Stat(logFile); os.IsNotExist(err) {
+		if err := os.MkdirAll(filepath.Dir(logFile), 0755); err != nil {
+			log.Fatalf("failed to create directory: %v", err)
+		}
+	}
+
+	f, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalf("failed to open file: %v", err)
+	}
+	return f
+}
+
 func main() {
 
 	configPath := flag.String("c", "", "configuration path")
 	showVer := flag.Bool("v", false, "version")
 	storageType := flag.String("s", "s3", "storage type: azurebs|alioss|s3|gcs|dav")
+	logFile := flag.String("l", "", "optional file with full path to write logs(if not specified log to os.Stderr, default behavior)")
 	flag.Parse()
 
 	if *showVer {
@@ -42,6 +61,14 @@ func main() {
 		log.Fatalln(err)
 	}
 	defer configFile.Close() //nolint:errcheck
+
+	if *logFile != "" {
+		f := createOrUseProvided(*logFile)
+
+		m := io.MultiWriter(os.Stderr, f)
+		log.SetOutput(m)
+		defer f.Close()
+	}
 
 	client, err := storage.NewStorageClient(*storageType, configFile)
 	if err != nil {
