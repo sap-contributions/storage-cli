@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -43,12 +44,25 @@ func createOrUseProvided(logFile string) *os.File {
 	return f
 }
 
+// Configure slog to be json formated, set log level and
+// stream to file if provided, by default it streams to os.Stderr
+func configureSlog(debug bool, m io.Writer) {
+	hOpt := &slog.HandlerOptions{Level: slog.LevelInfo}
+	if debug {
+		hOpt.Level = slog.LevelDebug
+	}
+
+	logger := slog.New(slog.NewJSONHandler(m, hOpt))
+	slog.SetDefault(logger)
+}
+
 func main() {
 
 	configPath := flag.String("c", "", "configuration path")
 	showVer := flag.Bool("v", false, "version")
 	storageType := flag.String("s", "s3", "storage type: azurebs|alioss|s3|gcs|dav")
 	logFile := flag.String("l", "", "optional file with full path to write logs(if not specified log to os.Stderr, default behavior)")
+	debug := flag.Bool("d", false, "run with debug mode")
 	flag.Parse()
 
 	if *showVer {
@@ -62,13 +76,13 @@ func main() {
 	}
 	defer configFile.Close() //nolint:errcheck
 
+	writers := []io.Writer{os.Stderr}
 	if *logFile != "" {
 		f := createOrUseProvided(*logFile)
-
-		m := io.MultiWriter(os.Stderr, f)
-		log.SetOutput(m)
 		defer f.Close()
+		writers = append(writers, f)
 	}
+	configureSlog(*debug, io.MultiWriter(writers...))
 
 	client, err := storage.NewStorageClient(*storageType, configFile)
 	if err != nil {
