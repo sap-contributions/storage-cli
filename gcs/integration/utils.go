@@ -90,6 +90,8 @@ func RunGCSCLI(gcsCLIPath, configPath, storageType, subcommand string, args ...s
 		configPath,
 		"-s",
 		storageType,
+		"-log-level",
+		"info",
 		subcommand,
 	}
 	cmdArgs = append(cmdArgs, args...)

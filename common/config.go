@@ -1,9 +1,12 @@
 package common
 
-import "sync"
+import (
+	"log/slog"
+	"sync"
+)
 
 type Config struct {
-	Debug bool
+	LogLevel slog.Level
 }
 
 var (
@@ -11,9 +14,9 @@ var (
 	once     sync.Once
 )
 
-func InitConfig(debug bool) {
+func InitConfig(logLevel slog.Level) {
 	once.Do(func() {
-		instance = &Config{Debug: debug}
+		instance = &Config{LogLevel: logLevel}
 	})
 }
 
@@ -25,5 +28,8 @@ func IsDebug() bool {
 	if instance == nil {
 		return false
 	}
-	return instance.Debug
+	if instance.LogLevel == slog.LevelDebug {
+		return true
+	}
+	return false
 }

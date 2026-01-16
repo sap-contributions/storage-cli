@@ -45,7 +45,7 @@ func AssertLifecycleWorks(gcsCLIPath string, ctx AssertContext) {
 	session, err = RunGCSCLI(gcsCLIPath, ctx.ConfigPath, storageType, "exists", ctx.GCSFileName)
 	Expect(err).ToNot(HaveOccurred())
 	Expect(session.ExitCode()).To(BeZero())
-	Expect(session.Err.Contents()).To(MatchRegexp("File '.*' exists in bucket '.*'"))
+	Expect(session.Err.Contents()).To(MatchRegexp("Object exists in bucket"))
 
 	tmpLocalFileName := "gcscli-download"
 	defer os.Remove(tmpLocalFileName) //nolint:errcheck
@@ -65,7 +65,7 @@ func AssertLifecycleWorks(gcsCLIPath string, ctx AssertContext) {
 	session, err = RunGCSCLI(gcsCLIPath, ctx.ConfigPath, storageType, "exists", ctx.GCSFileName)
 	Expect(err).ToNot(HaveOccurred())
 	Expect(session.ExitCode()).To(Equal(3))
-	Expect(session.Err.Contents()).To(MatchRegexp("File '.*' does not exist in bucket '.*'"))
+	Expect(session.Err.Contents()).To(MatchRegexp("Object does not exist in bucket"))
 }
 
 func AssertDeleteRecursiveWithPrefixLifecycle(gcsCLIPath string, ctx AssertContext) {
@@ -101,16 +101,17 @@ func AssertDeleteRecursiveWithPrefixLifecycle(gcsCLIPath string, ctx AssertConte
 	session, err = RunGCSCLI(gcsCLIPath, ctx.ConfigPath, storageType, "exists", dstObject3)
 	Expect(err).ToNot(HaveOccurred())
 	Expect(session.ExitCode()).To(BeZero())
+	Expect(session.Err.Contents()).To(MatchRegexp("Object exists in bucket"))
 
 	session, err = RunGCSCLI(gcsCLIPath, ctx.ConfigPath, storageType, "exists", dstObject1)
 	Expect(err).ToNot(HaveOccurred())
 	Expect(session.ExitCode()).To(Equal(3))
-	Expect(session.Err.Contents()).To(MatchRegexp("File '.*' does not exist in bucket '.*'"))
+	Expect(session.Err.Contents()).To(MatchRegexp("Object does not exist in bucket"))
 
 	session, err = RunGCSCLI(gcsCLIPath, ctx.ConfigPath, storageType, "exists", dstObject1)
 	Expect(err).ToNot(HaveOccurred())
 	Expect(session.ExitCode()).To(Equal(3))
-	Expect(session.Err.Contents()).To(MatchRegexp("File '.*' does not exist in bucket '.*'"))
+	Expect(session.Err.Contents()).To(MatchRegexp("Object does not exist in bucket"))
 
 	//cleanup artifact
 	session, err = RunGCSCLI(gcsCLIPath, ctx.ConfigPath, storageType, "delete", dstObject3)
