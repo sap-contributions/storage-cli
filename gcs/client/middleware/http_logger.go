@@ -3,7 +3,7 @@ package middleware
 import (
 	"log/slog"
 	"net/http"
-	"net/http/httputil"
+	"time"
 )
 
 type roundTripperFunc func(req *http.Request) (*http.Response, error)
@@ -14,17 +14,33 @@ func (f roundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 
 func NewLoggingTransport(base http.RoundTripper) http.RoundTripper {
 	return roundTripperFunc(func(req *http.Request) (*http.Response, error) {
-		reqDump, _ := httputil.DumpRequest(req, false)
-		slog.Debug("REQUEST", "dump", string(reqDump))
+		slog.Debug("http request",
+			"method", req.Method,
+			"url", req.URL.String(),
+			"headers", req.Header,
+			"host", req.Host,
+			"content_lenght", req.ContentLength)
 
+		start := time.Now()
 		resp, err := base.RoundTrip(req)
+		duration := time.Since(start)
 
 		if err != nil {
-			slog.Error("ERROR", "dump", err)
+			slog.Error("http request failed",
+				"method", req.Method,
+				"url", req.URL.String(),
+				"duration_ms", duration.Milliseconds(),
+				"error", err)
+			return resp, err
 		}
 		if resp != nil {
-			respDump, _ := httputil.DumpResponse(resp, false)
-			slog.Debug("RESPONSE", "dump", string(respDump))
+			slog.Debug("http response",
+				"method", req.Method,
+				"url", req.URL.String(),
+				"status_code", resp.StatusCode,
+				"status", resp.Status,
+				"content_length", resp.ContentLength,
+				"duration_ms", duration.Milliseconds())
 		}
 		return resp, err
 	})
