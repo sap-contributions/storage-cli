@@ -24,6 +24,7 @@ import (
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"golang.org/x/oauth2/jwt"
 
 	"google.golang.org/api/option"
 
@@ -40,6 +41,8 @@ const uaString = "storage-cli-gcs"
 func newStorageClients(ctx context.Context, cfg *config.GCSCli) (*storage.Client, *storage.Client, error) {
 	publicClient, err := storage.NewClient(ctx, option.WithUserAgent(uaString), option.WithHTTPClient(http.DefaultClient))
 	var authenticatedClient *storage.Client
+	var tokenSource oauth2.TokenSource
+	var token *jwt.Config
 
 	switch cfg.CredentialsSource {
 	case config.NoneCredentialsSource:
@@ -50,7 +53,7 @@ func newStorageClients(ctx context.Context, cfg *config.GCSCli) (*storage.Client
 			publicClient, err = storage.NewClient(ctx, option.WithUserAgent(uaString), option.WithHTTPClient(httpClient))
 		}
 	case config.DefaultCredentialsSource:
-		if tokenSource, err := google.DefaultTokenSource(ctx, storage.ScopeFullControl); err == nil {
+		if tokenSource, err = google.DefaultTokenSource(ctx, storage.ScopeFullControl); err == nil {
 			if common.IsDebug() {
 				baseClient := oauth2.NewClient(ctx, tokenSource)
 				baseClient.Transport = middleware.NewLoggingTransport(baseClient.Transport)
@@ -61,7 +64,7 @@ func newStorageClients(ctx context.Context, cfg *config.GCSCli) (*storage.Client
 			}
 		}
 	case config.ServiceAccountFileCredentialsSource:
-		if token, err := google.JWTConfigFromJSON([]byte(cfg.ServiceAccountFile), storage.ScopeFullControl); err == nil {
+		if token, err = google.JWTConfigFromJSON([]byte(cfg.ServiceAccountFile), storage.ScopeFullControl); err == nil {
 			if common.IsDebug() {
 				tokenSource := token.TokenSource(ctx)
 				baseClient := oauth2.NewClient(ctx, tokenSource)

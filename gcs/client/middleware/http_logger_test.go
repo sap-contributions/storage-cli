@@ -32,7 +32,7 @@ var _ = Describe("HttpLogger", func() {
 			})
 			loggingTransport := NewLoggingTransport(mockTransport)
 			req := httptest.NewRequest("GET", "http://example.com/test", nil)
-			_, _ = loggingTransport.RoundTrip(req)
+			_, _ = loggingTransport.RoundTrip(req) //nolint:errcheck
 			logs := buf.String()
 			Expect(logs).To(ContainSubstring(`"msg":"http response"`))
 			Expect(logs).To(ContainSubstring(`"method":"GET"`))
@@ -50,7 +50,7 @@ var _ = Describe("HttpLogger", func() {
 			})
 			loggingTransport := NewLoggingTransport(mockTransport)
 			req := httptest.NewRequest("GET", "http://example.com/test", nil)
-			_, _ = loggingTransport.RoundTrip(req)
+			_, _ = loggingTransport.RoundTrip(req) //nolint:errcheck
 			logs := buf.String()
 			Expect(logs).To(ContainSubstring(`"msg":"http request failed"`))
 			Expect(logs).To(ContainSubstring(`"method":"GET"`))
@@ -70,7 +70,7 @@ var _ = Describe("HttpLogger", func() {
 			})
 			loggingTransport := NewLoggingTransport(mockTransport)
 			req := httptest.NewRequest("GET", "http://example.com/test", nil)
-			_, _ = loggingTransport.RoundTrip(req)
+			_, _ = loggingTransport.RoundTrip(req) //nolint:errcheck
 			logs := buf.String()
 			Expect(logs).To(ContainSubstring(`"msg":"http request"`))
 			Expect(logs).To(ContainSubstring(`"method":"GET"`))

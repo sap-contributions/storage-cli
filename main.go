@@ -118,7 +118,7 @@ func main() {
 	// simple check for any command
 	nonFlagArgs := flag.Args()
 	if len(nonFlagArgs) < 1 {
-		fatalLog("", errors.New("Expected at least 1 argument (command) got 0"))
+		fatalLog("", errors.New("expected at least 1 argument (command) got 0"))
 	}
 
 	// execute command
