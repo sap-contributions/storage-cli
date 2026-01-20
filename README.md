@@ -46,6 +46,8 @@ storage-cli -s <provider> -c <config-file> <command> [arguments]
 - `-s`: Storage provider type (azurebs|s3|gcs|alioss|dav)
 - `-c`: Path to provider-specific configuration file
 - `-v`: Show version
+- `-log-file`: Path to log file (optional, logs to stderr by default)
+- `-log-level`: Logging level: debug, info, warn, error (default: warn)
 
 **Common commands:**
 - `put <path/to/file> <remote-object>` - Upload a local file to remote storage
@@ -57,7 +59,7 @@ storage-cli -s <provider> -c <config-file> <command> [arguments]
 - `copy <source-object> <destination-object>` - Copy object within the same storage
 - `sign <object> <action> <duration_as_second>` - Generate signed URL (action: get|put, duration: e.g., 60s)
 - `properties <remote-object>` - Display properties/metadata of a remote object
-- `ensure-storage-exists` - Ensure the storage container/bucket exists
+- `ensure-storage-exists` - Ensure the storage container/bucket exists, if not create the storage(bucket,container etc)
 
 **Examples:**
 ```shell
@@ -75,6 +77,12 @@ storage-cli -s azurebs -c azure-config.json properties my-blob.txt
 
 # Sign object for 'get' in alioss for 60 seconds
 storage-cli -s alioss -c alioss-config.json sign object.txt get 60s
+
+# Upload file with debug logging to file
+storage-cli -s s3 -c s3-config.json -log-level debug -log-file storage.log put local-file.txt remote-object.txt
+
+# List objects with error-level logging only
+storage-cli -s gcs -c gcs-config.json -log-level error list my-prefix
 ```
 
 ## Contributing
