@@ -31,7 +31,8 @@ func fatalLog(cmd string, err error) {
 
 }
 
-// first create path if not exist, then create and return file pointer
+// first, create path if not exist,
+// then open/create file and return file pointer
 func createOrUseProvided(logFile string) *os.File {
 	if _, err := os.Stat(logFile); os.IsNotExist(err) {
 		if err := os.MkdirAll(filepath.Dir(logFile), 0755); err != nil {
