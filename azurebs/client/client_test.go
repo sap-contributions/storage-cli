@@ -32,6 +32,31 @@ var _ = Describe("Client", func() {
 			Expect(dest).To(Equal("target/blob"))
 		})
 
+		It("uploads a file with UploadStream", func() {
+			storageClient := clientfakes.FakeStorageClient{}
+
+			azBlobstore, err := client.New(&storageClient)
+			Expect(err).ToNot(HaveOccurred())
+
+			file, _ := os.CreateTemp("", "tmpfile-test-upload") //nolint:errcheck
+			defer os.Remove(file.Name())
+
+			contentSize := 1024 * 1024 * 64 // 64MB
+			content := make([]byte, contentSize)
+			for i := range contentSize {
+				content[i] = '0'
+			}
+			_, err = file.Write(content)
+
+			azBlobstore.Put(file.Name(), "target/blob") //nolint:errcheck
+
+			Expect(storageClient.UploadStreamCallCount()).To(Equal(1))
+			source, dest := storageClient.UploadStreamArgsForCall(0)
+
+			Expect(source).To(BeAssignableToTypeOf((*os.File)(nil)))
+			Expect(dest).To(Equal("target/blob"))
+		})
+
 		It("skips the upload if the md5 cannot be calculated from the file", func() {
 			storageClient := clientfakes.FakeStorageClient{}
 
