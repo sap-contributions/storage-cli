@@ -1,6 +1,7 @@
 package client_test
 
 import (
+	"bytes"
 	"errors"
 	"os"
 	"runtime"
@@ -39,14 +40,12 @@ var _ = Describe("Client", func() {
 			Expect(err).ToNot(HaveOccurred())
 
 			file, _ := os.CreateTemp("", "tmpfile-test-upload") //nolint:errcheck
-			defer os.Remove(file.Name())
+			defer os.Remove(file.Name())                        //nolint:errcheck
 
 			contentSize := 1024 * 1024 * 64 // 64MB
-			content := make([]byte, contentSize)
-			for i := range contentSize {
-				content[i] = '0'
-			}
-			_, err = file.Write(content)
+
+			content := bytes.Repeat([]byte("x"), contentSize)
+			_, _ = file.Write(content) //nolint:errcheck
 
 			azBlobstore.Put(file.Name(), "target/blob") //nolint:errcheck
 
