@@ -139,14 +139,7 @@ func (client *GCSBlobstore) Get(src string, dest string) error {
 		return client.downloadEncrypted(gcsClient, src, destFile)
 	}
 
-	downloader, err := transfermanager.NewDownloader(gcsClient,
-		transfermanager.WithPartSize(blockSize),
-		transfermanager.WithWorkers(maxConcurrency))
-	if err != nil {
-		return fmt.Errorf("creating new downloader: %w", err)
-	}
-
-	return client.download(downloader, src, destFile)
+	return client.downloadConcurrent(gcsClient, src, destFile)
 
 }
 
@@ -157,7 +150,13 @@ func (client *GCSBlobstore) checkAccess(gcsClient *storage.Client, src string) e
 	return err
 }
 
-func (client *GCSBlobstore) download(downloader *transfermanager.Downloader, src string, destFile *os.File) error {
+func (client *GCSBlobstore) downloadConcurrent(gcsClient *storage.Client, src string, destFile *os.File) error {
+	downloader, err := transfermanager.NewDownloader(gcsClient,
+		transfermanager.WithPartSize(blockSize),
+		transfermanager.WithWorkers(maxConcurrency))
+	if err != nil {
+		return fmt.Errorf("creating new downloader: %w", err)
+	}
 
 	in := &transfermanager.DownloadObjectInput{Bucket: client.config.BucketName, Object: src, Destination: destFile}
 
