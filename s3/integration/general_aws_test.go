@@ -124,7 +124,6 @@ var _ = Describe("General testing for all AWS regions", func() {
 					SecretAccessKey: secretAccessKey,
 					BucketName:      bucketName,
 					Region:          region,
-					MultipartUpload: true,
 				}
 				msg := "upload retry limit exceeded"
 				integration.AssertOnPutFailures(cfg, largeContent, msg)

@@ -21,7 +21,6 @@ import (
 )
 
 var errorInvalidCredentialsSourceValue = errors.New("the client operates in read only mode. Change 'credentials_source' parameter value ")
-var oneTB = int64(1000 * 1024 * 1024 * 1024)
 
 // Default settings for transfer concurrency and part size.
 // These values are chosen to align with typical AWS CLI and SDK defaults for efficient S3 uploads and downloads.
@@ -109,7 +108,6 @@ func (b *awsS3Client) Put(src io.ReadSeeker, dest string) error {
 	}
 
 	retry := 0
-	maxRetries := 3
 	for {
 		putResult, err := uploader.Upload(context.TODO(), uploadInput) //nolint:staticcheck
 		if err != nil {
