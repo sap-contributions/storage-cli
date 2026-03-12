@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"strings"
 )
 
@@ -23,7 +24,6 @@ type S3Cli struct {
 	ServerSideEncryption                      string `json:"server_side_encryption"`
 	SSEKMSKeyID                               string `json:"sse_kms_key_id"`
 	AssumeRoleArn                             string `json:"assume_role_arn"`
-	MultipartUpload                           bool   `json:"multipart_upload"`
 	HostStyle                                 bool   `json:"host_style"`
 	SwiftAuthAccount                          string `json:"swift_auth_account"`
 	SwiftTempURLKey                           string `json:"swift_temp_url_key"`
@@ -39,12 +39,21 @@ type S3Cli struct {
 	UploadPartSize         int64 `json:"upload_part_size"`
 	MultipartCopyThreshold int64 `json:"multipart_copy_threshold"` // Default: 5GB - files larger than this use multipart copy
 	MultipartCopyPartSize  int64 `json:"multipart_copy_part_size"` // Default: 100MB - size of each part in multipart copy
+
+	// Files smaller than or equal to this size (in bytes) are uploaded using a single PutObject call.
+	// Files exceeding this size use multipart upload. Omit or set to 0 to always use multipart upload.
+	// Must not exceed 5GB (AWS S3 hard limit for PutObject, https://docs.aws.amazon.com/AmazonS3/latest/userguide/upload-objects.html).
+	// For GCS, leave this unset (0); it will be automatically set to math.MaxInt64 since GCS requires single put for all uploads but has no size limit.
+	SingleUploadThreshold int64 `json:"single_upload_threshold"`
 }
 
 const (
 	// multipartCopyMinPartSize is the AWS minimum part size for multipart operations.
 	// Other providers may have different limits - users should consult their provider's documentation.
 	multipartCopyMinPartSize = 5 * 1024 * 1024 // 5MB - AWS minimum part size
+
+	// singlePutMaxSize is the AWS S3 hard limit for a single PutObject call.
+	singlePutMaxSize = int64(5 * 1024 * 1024 * 1024) // 5GB
 )
 
 const defaultAWSRegion = "us-east-1" //nolint:unused
@@ -85,7 +94,6 @@ func NewFromReader(reader io.Reader) (S3Cli, error) {
 	c := S3Cli{
 		SSLVerifyPeer:                             true,
 		UseSSL:                                    true,
-		MultipartUpload:                           true,
 		RequestChecksumCalculationEnabled:         true,
 		ResponseChecksumCalculationEnabled:        true,
 		UploaderRequestChecksumCalculationEnabled: true,
@@ -99,6 +107,11 @@ func NewFromReader(reader io.Reader) (S3Cli, error) {
 	// Validate bucket presence
 	if c.BucketName == "" {
 		return S3Cli{}, errors.New("bucket_name must be set")
+	}
+
+	// Validate single put threshold
+	if c.SingleUploadThreshold < 0 {
+		return S3Cli{}, errors.New("single_upload_threshold must not be negative")
 	}
 
 	// Validate numeric fields: disallow negative values (zero means "use defaults")
@@ -158,6 +171,12 @@ func NewFromReader(reader io.Reader) (S3Cli, error) {
 		c.configureDefault()
 	}
 
+	// Validate SingleUploadThreshold against the 5GB AWS limit, but only for non-GCS providers.
+	// GCS has no such limit, and configureGoogle() sets math.MaxInt64 internally.
+	if !c.IsGoogle() && c.SingleUploadThreshold > singlePutMaxSize {
+		return S3Cli{}, fmt.Errorf("single_upload_threshold must not exceed %d bytes (5GB - AWS S3 PutObject limit)", singlePutMaxSize)
+	}
+
 	return c, nil
 }
 
@@ -174,8 +193,6 @@ func Provider(host string) string {
 }
 
 func (c *S3Cli) configureAWS() {
-	c.MultipartUpload = true
-
 	if c.Region == "" {
 		if region := AWSHostToRegion(c.Host); region != "" {
 			c.Region = region
@@ -186,7 +203,6 @@ func (c *S3Cli) configureAWS() {
 }
 
 func (c *S3Cli) configureAlicloud() {
-	c.MultipartUpload = true
 	c.HostStyle = true
 
 	c.Host = strings.Split(c.Host, ":")[0]
@@ -198,7 +214,9 @@ func (c *S3Cli) configureAlicloud() {
 }
 
 func (c *S3Cli) configureGoogle() {
-	c.MultipartUpload = false
+	// GCS does not support multipart upload, so all files must be uploaded via a single PutObject call.
+	// Unlike AWS S3, GCS has no 5GB hard limit on single uploads, so math.MaxInt64 is safe here.
+	c.SingleUploadThreshold = math.MaxInt64
 	c.RequestChecksumCalculationEnabled = false
 }
 

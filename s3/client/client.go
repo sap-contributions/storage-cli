@@ -44,6 +44,16 @@ func (c *S3CompatibleClient) Put(src string, dest string) error {
 		return err
 	}
 	defer sourceFile.Close() //nolint:errcheck
+
+	info, err := sourceFile.Stat()
+	if err != nil {
+		return err
+	}
+	size := info.Size()
+
+	if size <= c.s3cliConfig.SingleUploadThreshold {
+		return c.awsS3BlobstoreClient.PutSinglePart(sourceFile, dest)
+	}
 	return c.awsS3BlobstoreClient.Put(sourceFile, dest)
 }
 

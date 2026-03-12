@@ -21,7 +21,6 @@ import (
 )
 
 var errorInvalidCredentialsSourceValue = errors.New("the client operates in read only mode. Change 'credentials_source' parameter value ")
-var oneTB = int64(1000 * 1024 * 1024 * 1024)
 
 // Default settings for transfer concurrency and part size.
 // These values are chosen to align with typical AWS CLI and SDK defaults for efficient S3 uploads and downloads.
@@ -33,6 +32,7 @@ const (
 	// AWS CopyObject limit is 5GB, use 100MB parts for multipart copy
 	defaultMultipartCopyThreshold = int64(5 * 1024 * 1024 * 1024) // 5 GB
 	defaultMultipartCopyPartSize  = int64(100 * 1024 * 1024)      // 100 MB
+	maxRetries                    = 3
 )
 
 // awsS3Client encapsulates AWS S3 blobstore interactions
@@ -84,17 +84,9 @@ func (b *awsS3Client) Put(src io.ReadSeeker, dest string) error {
 			u.Concurrency = cfg.UploadConcurrency
 		}
 
-		// PartSize: if multipart uploads disabled, force a very large part to avoid multipart.
-		// Otherwise, use configured upload part size if present, otherwise default.
-		if !cfg.MultipartUpload {
-			// disable multipart uploads by way of large PartSize configuration
-			u.PartSize = oneTB
-		} else {
-			if cfg.UploadPartSize > 0 {
-				u.PartSize = cfg.UploadPartSize
-			} else {
-				u.PartSize = defaultTransferPartSize
-			}
+		u.PartSize = defaultTransferPartSize
+		if cfg.UploadPartSize > 0 {
+			u.PartSize = cfg.UploadPartSize
 		}
 
 		if cfg.ShouldDisableUploaderRequestChecksumCalculation() {
@@ -116,7 +108,6 @@ func (b *awsS3Client) Put(src io.ReadSeeker, dest string) error {
 	}
 
 	retry := 0
-	maxRetries := 3
 	for {
 		putResult, err := uploader.Upload(context.TODO(), uploadInput) //nolint:staticcheck
 		if err != nil {
@@ -132,6 +123,50 @@ func (b *awsS3Client) Put(src io.ReadSeeker, dest string) error {
 		}
 
 		slog.Info("Successfully uploaded file", "location", putResult.Location)
+		return nil
+	}
+}
+
+// PutSinglePart uploads a blob using a single PutObject call (no multipart).
+// Use this for small files where multipart overhead is unnecessary.
+func (b *awsS3Client) PutSinglePart(src io.ReadSeeker, dest string) error {
+	cfg := b.s3cliConfig
+	if cfg.CredentialsSource == config.NoneCredentialsSource {
+		return errorInvalidCredentialsSourceValue
+	}
+
+	input := &s3.PutObjectInput{
+		Body:   src,
+		Bucket: aws.String(cfg.BucketName),
+		Key:    b.key(dest),
+	}
+	if cfg.ServerSideEncryption != "" {
+		input.ServerSideEncryption = types.ServerSideEncryption(cfg.ServerSideEncryption)
+	}
+	if cfg.SSEKMSKeyID != "" {
+		input.SSEKMSKeyId = aws.String(cfg.SSEKMSKeyID)
+	}
+
+	retry := 0
+	for {
+		// Seek back to the start on retries so the full body is re-sent
+		if retry > 0 {
+			if _, seekErr := src.Seek(0, io.SeekStart); seekErr != nil {
+				return fmt.Errorf("failed to seek source for retry: %s", seekErr.Error())
+			}
+		}
+
+		_, err := b.s3Client.PutObject(context.TODO(), input)
+		if err != nil {
+			if retry == maxRetries {
+				return fmt.Errorf("single part upload retry limit exceeded: %s", err.Error())
+			}
+			retry++
+			time.Sleep(time.Second * time.Duration(retry))
+			continue
+		}
+
+		slog.Info("Successfully uploaded file (single part)", "key", dest)
 		return nil
 	}
 }

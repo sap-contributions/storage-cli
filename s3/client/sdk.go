@@ -37,7 +37,7 @@ func NewAwsS3ClientWithApiOptions(
 	var httpClient *http.Client
 
 	if c.SSLVerifyPeer {
-		httpClient = boshhttp.CreateDefaultClient(nil)
+		httpClient = boshhttp.CreateKeepAliveDefaultClient(nil)
 	} else {
 		httpClient = boshhttp.CreateDefaultClientInsecureSkipVerify()
 	}
