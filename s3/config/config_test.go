@@ -112,26 +112,6 @@ var _ = Describe("BlobstoreClient configuration", func() {
 				})
 			})
 
-			Context("when MultipartUpload have been set", func() {
-				dummyJSONBytes := []byte(`{"access_key_id": "id", "secret_access_key": "key", "bucket_name": "some-bucket", "host": "some-host", "region": "some-region", "multipart_upload": false}`)
-				dummyJSONReader := bytes.NewReader(dummyJSONBytes)
-				It("sets MultipartUpload to user-specified values", func() {
-					c, err := config.NewFromReader(dummyJSONReader)
-					Expect(err).ToNot(HaveOccurred())
-					Expect(c.MultipartUpload).To(BeFalse())
-				})
-			})
-
-			Context("when MultipartUpload have not been set", func() {
-				dummyJSONBytes := []byte(`{"access_key_id": "id", "secret_access_key": "key", "bucket_name": "some-bucket", "host": "some-host", "region": "some-region"}`)
-				dummyJSONReader := bytes.NewReader(dummyJSONBytes)
-				It("default MultipartUpload to true", func() {
-					c, err := config.NewFromReader(dummyJSONReader)
-					Expect(err).ToNot(HaveOccurred())
-					Expect(c.MultipartUpload).To(BeTrue())
-				})
-			})
-
 			Context("when HostStyle has been set", func() {
 				dummyJSONBytes := []byte(`{"access_key_id": "id", "secret_access_key": "key", "bucket_name": "some-bucket", "host": "some-host", "region": "some-region", "host_style": true}`)
 				dummyJSONReader := bytes.NewReader(dummyJSONBytes)
@@ -633,16 +613,70 @@ var _ = Describe("BlobstoreClient configuration", func() {
 		})
 	})
 
-	Describe("checking the alibaba cloud MultipartUpload", func() {
-		emptyJSONBytes := []byte(`{"access_key_id": "id", "secret_access_key": "key", "bucket_name": "some-bucket", "host": "oss-some-region.aliyuncs.com"}`)
-		emptyJSONReader := bytes.NewReader(emptyJSONBytes)
+	Describe("single_upload_threshold", func() {
+		It("defaults to 0 when not set", func() {
+			dummyJSONBytes := []byte(`{"access_key_id":"id","secret_access_key":"key","bucket_name":"some-bucket"}`)
+			dummyJSONReader := bytes.NewReader(dummyJSONBytes)
 
-		It("defaults to support multipart uploading", func() {
-			c, err := config.NewFromReader(emptyJSONReader)
+			c, err := config.NewFromReader(dummyJSONReader)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(c.MultipartUpload).To(BeTrue())
+			Expect(c.SingleUploadThreshold).To(Equal(int64(0)))
+		})
+
+		It("accepts a valid positive value", func() {
+			dummyJSONBytes := []byte(`{"access_key_id":"id","secret_access_key":"key","bucket_name":"some-bucket","single_upload_threshold":104857600}`)
+			dummyJSONReader := bytes.NewReader(dummyJSONBytes)
+
+			c, err := config.NewFromReader(dummyJSONReader)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(c.SingleUploadThreshold).To(Equal(int64(104857600))) // 100MB
+		})
+
+		It("accepts exactly 5GB (AWS maximum)", func() {
+			dummyJSONBytes := []byte(`{"access_key_id":"id","secret_access_key":"key","bucket_name":"some-bucket","single_upload_threshold":5368709120}`)
+			dummyJSONReader := bytes.NewReader(dummyJSONBytes)
+
+			c, err := config.NewFromReader(dummyJSONReader)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(c.SingleUploadThreshold).To(Equal(int64(5368709120)))
+		})
+
+		It("rejects negative values", func() {
+			dummyJSONBytes := []byte(`{"access_key_id":"id","secret_access_key":"key","bucket_name":"some-bucket","single_upload_threshold":-1}`)
+			dummyJSONReader := bytes.NewReader(dummyJSONBytes)
+
+			_, err := config.NewFromReader(dummyJSONReader)
+			Expect(err).To(MatchError("single_upload_threshold must not be negative"))
+		})
+
+		It("rejects values above 5GB for non-GCS providers", func() {
+			dummyJSONBytes := []byte(`{"access_key_id":"id","secret_access_key":"key","bucket_name":"some-bucket","single_upload_threshold":5368709121}`)
+			dummyJSONReader := bytes.NewReader(dummyJSONBytes)
+
+			_, err := config.NewFromReader(dummyJSONReader)
+			Expect(err).To(MatchError(ContainSubstring("single_upload_threshold must not exceed")))
+		})
+
+		It("allows values above 5GB for GCS (no hard limit)", func() {
+			dummyJSONBytes := []byte(`{"access_key_id":"id","secret_access_key":"key","bucket_name":"some-bucket","host":"storage.googleapis.com","single_upload_threshold":10737418240}`)
+			dummyJSONReader := bytes.NewReader(dummyJSONBytes)
+
+			c, err := config.NewFromReader(dummyJSONReader)
+			Expect(err).ToNot(HaveOccurred())
+			// configureGoogle() overrides to math.MaxInt64 regardless of user input
+			Expect(c.SingleUploadThreshold).To(Equal(int64(9223372036854775807)))
+		})
+
+		It("automatically sets threshold to MaxInt64 for GCS regardless of config", func() {
+			dummyJSONBytes := []byte(`{"access_key_id":"id","secret_access_key":"key","bucket_name":"some-bucket","host":"storage.googleapis.com"}`)
+			dummyJSONReader := bytes.NewReader(dummyJSONBytes)
+
+			c, err := config.NewFromReader(dummyJSONReader)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(c.SingleUploadThreshold).To(Equal(int64(9223372036854775807)))
 		})
 	})
+
 })
 
 type explodingReader struct{}
