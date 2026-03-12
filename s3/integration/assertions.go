@@ -504,3 +504,59 @@ func AssertOnSignedURLs(s3CLIPath string, cfg *config.S3Cli) {
 	_, err = RunS3CLI(s3CLIPath, configPath, storageType, "delete", s3Filename+"_put_test")
 	Expect(err).ToNot(HaveOccurred())
 }
+
+// AssertSinglePartUploadWorks verifies that when SingleUploadThreshold is set above the file size,
+// the upload uses a single PutObject call (PutSinglePart) instead of the multipart manager.
+func AssertSinglePartUploadWorks(s3CLIPath string, cfg *config.S3Cli) {
+	s3Filename := GenerateRandomString()
+	expectedContent := GenerateRandomString(1024) // 1KB — well within the 1MB threshold
+	sourceFile := MakeContentFile(expectedContent)
+	defer os.Remove(sourceFile) //nolint:errcheck
+
+	storageType := "s3"
+	// Set threshold to 1MB — any small test string routes through PutSinglePart
+	cfg.SingleUploadThreshold = 1 * 1024 * 1024
+
+	configPath := MakeConfigFile(cfg)
+	defer os.Remove(configPath) //nolint:errcheck
+
+	configFile, err := os.Open(configPath)
+	Expect(err).ToNot(HaveOccurred())
+
+	s3Config, err := config.NewFromReader(configFile)
+	Expect(err).ToNot(HaveOccurred())
+
+	// Track API calls to confirm a single PutObject was used (no multipart operations)
+	calls := []string{}
+	s3Client, err := CreateTracingS3Client(&s3Config, &calls)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	blobstoreClient := client.New(s3Client, &s3Config)
+
+	err = blobstoreClient.Put(sourceFile, s3Filename)
+	Expect(err).ToNot(HaveOccurred())
+
+	// A single PutObject call is the fingerprint of PutSinglePart
+	Expect(calls).To(Equal(expectedPutUploadCalls), "Expected single PutObject (PutSinglePart), got: %v", calls)
+
+	// Download and verify content integrity
+	tmpLocalFile, err := os.CreateTemp("", "s3cli-download-single-upload")
+	Expect(err).ToNot(HaveOccurred())
+	err = tmpLocalFile.Close()
+	Expect(err).ToNot(HaveOccurred())
+	defer os.Remove(tmpLocalFile.Name()) //nolint:errcheck
+
+	s3CLISession, err := RunS3CLI(s3CLIPath, configPath, storageType, "get", s3Filename, tmpLocalFile.Name())
+	Expect(err).ToNot(HaveOccurred())
+	Expect(s3CLISession.ExitCode()).To(BeZero())
+
+	gottenBytes, err := os.ReadFile(tmpLocalFile.Name())
+	Expect(err).ToNot(HaveOccurred())
+	Expect(string(gottenBytes)).To(Equal(expectedContent))
+
+	// Clean up
+	_, err = RunS3CLI(s3CLIPath, configPath, storageType, "delete", s3Filename)
+	Expect(err).ToNot(HaveOccurred())
+}

@@ -83,6 +83,10 @@ var _ = Describe("General testing for all AWS regions", func() {
 			func(cfg *config.S3Cli) { integration.AssertMultipartCopyWorks(s3CLIPath, cfg) },
 			configurations,
 		)
+		DescribeTable("Single part upload works when threshold exceeds file size",
+			func(cfg *config.S3Cli) { integration.AssertSinglePartUploadWorks(s3CLIPath, cfg) },
+			configurations,
+		)
 
 		configurations = []TableEntry{
 			Entry("with encryption", &config.S3Cli{
