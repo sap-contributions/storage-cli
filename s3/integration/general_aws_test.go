@@ -33,7 +33,8 @@ var _ = Describe("General testing for all AWS regions", Label("aws", "static", "
 				BucketName:      bucketName,
 				Region:          region,
 			}),
-			Entry("with host and without region", &config.S3Cli{
+			// This case relies on default-region behavior and is excluded from regional endpoint jobs.
+			Entry("with host and without region", Label("requires-default-region"), &config.S3Cli{
 				AccessKeyID:     accessKeyID,
 				SecretAccessKey: secretAccessKey,
 				BucketName:      bucketName,
